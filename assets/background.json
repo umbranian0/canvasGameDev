@@ -1,0 +1,12 @@
+{"frames": {
+
+"UNIQUE.png":
+{
+	"frame": {"x":0,"y":0,"w":5860,"h":400},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":5860,"h":400},
+	"sourceSize": {"w":5860,"h":400},
+	"pivot": {"x":0.5,"y":0.5}
+}
+}}
