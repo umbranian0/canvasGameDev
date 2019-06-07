@@ -1,5 +1,5 @@
 var Entity = Class.extend(function () {
-		this.spriteSheet = undefined; // Spritesheet associada à entidade
+		this.spriteSheet = undefined; // Spritesheet associada ï¿½ entidade
 		this.eStates = {}; // dicionario de estados. Objecto de arrays de estados
 		this.frames = new Array(); // array com as frames atuais
 		this.currentFrame = 0; // frame atual
@@ -17,7 +17,7 @@ var Entity = Class.extend(function () {
 		};
 		this.rotation = 0;
 		this.visible = true;
-		this.active = true; // propriedade que indica que a entidade está activa. Se active=false, não deve ser apresentada
+		this.active = true; // propriedade que indica que a entidade estï¿½ activa. Se active=false, nï¿½o deve ser apresentada
 		this.killed = false;
 
 		this.vx = 3;
@@ -56,7 +56,7 @@ var Entity = Class.extend(function () {
 
 		this.getCenterX = function () {
 			return this.x + (this.width * 0.5);
-		} // this.width >> 1; é mais eficiente
+		} // this.width >> 1; ï¿½ mais eficiente
 
 		this.getCenterY = function () {
 			return this.y + (this.height * 0.5);
@@ -90,9 +90,9 @@ var Entity = Class.extend(function () {
 
 			ctx.globalAlpha = this.alpha;
 
-			if (this.rotation != 0) { // render com rotação
+			if (this.rotation != 0) { // render com rotaï¿½ï¿½o
 			 
-				// translação para o eixo da entidade
+				// translaï¿½ï¿½o para o eixo da entidade
 				ctx.translate(this.x + (this.width >> 1), this.y + (this.height >> 1));
 				ctx.rotate(this.rotation * Math.PI / 180);
 
@@ -102,7 +102,7 @@ var Entity = Class.extend(function () {
 					sprite.width, sprite.height,
 					Math.floor(-this.width >> 1), Math.floor(-this.height >> 1),
 					Math.floor(this.width), Math.floor(this.height));
-			} else { //render sem rotação
+			} else { //render sem rotaï¿½ï¿½o
 					ctx.drawImage(
 					this.spriteSheet.img,
 					sprite.x, sprite.y,
@@ -158,7 +158,7 @@ var Entity = Class.extend(function () {
 			// soma das metades das larguras das entidades
 			var totalRadii = this.getHalfWidth() + otherEntity.getHalfWidth();
 
-			// existe colisão se a distancia entre os circulos é menor que o totalRadii
+			// existe colisï¿½o se a distancia entre os circulos ï¿½ menor que o totalRadii
 			var hit = magnitude < totalRadii;
 
 			return hit;
@@ -178,19 +178,19 @@ var Entity = Class.extend(function () {
 			// soma das metades das larguras das entidades
 			var combinedHalfWidths = this.getHalfWidth() + otherEntity.getHalfWidth();
 
-			//Verificar se existe colisão
+			//Verificar se existe colisï¿½o
 			if (magnitude < combinedHalfWidths) {
-				//sim, existe colisão
-				//calcular o total de sobreposição
+				//sim, existe colisï¿½o
+				//calcular o total de sobreposiï¿½ï¿½o
 				var overlap = combinedHalfWidths - magnitude;
 
-				//Normalização do vector.
-				//Estes valores indicam a direção da colisão
+				//Normalizaï¿½ï¿½o do vector.
+				//Estes valores indicam a direï¿½ï¿½o da colisï¿½o
 				dx = vx / magnitude;
 				dy = vy / magnitude;
 
-				// Mover a circunferencia 1 para fora da colisão, multiplicando a sobreposição
-				// com o vetor normalizado e adicionar à posição da primeira circunferencia
+				// Mover a circunferencia 1 para fora da colisï¿½o, multiplicando a sobreposiï¿½ï¿½o
+				// com o vetor normalizado e adicionar ï¿½ posiï¿½ï¿½o da primeira circunferencia
 				this.x += overlap * dx;
 				this.y += overlap * dy;
 			}
@@ -210,18 +210,18 @@ var Entity = Class.extend(function () {
 			var combinedHalfWidths = this.getHalfWidth() + otherEntity.getHalfWidth();
 			var combinedHalfHeights = this.getHalfHeight() + otherEntity.getHalfHeight();
 
-			// verificar se ha colisão no eixo X
+			// verificar se ha colisï¿½o no eixo X
 			if (Math.abs(vx) < combinedHalfWidths) {
-				//Uma colisão poderá estar a ocorrer. Verificar se ocorre no eixo Y
+				//Uma colisï¿½o poderï¿½ estar a ocorrer. Verificar se ocorre no eixo Y
 				if (Math.abs(vy) < combinedHalfHeights) {
 					hit = true;
-				} //Existe mesmo uma colisão
+				} //Existe mesmo uma colisï¿½o
 				else {
 					hit = false;
-				} //Não há colisão no eixo Y
+				} //Nï¿½o hï¿½ colisï¿½o no eixo Y
 			} else {
 				hit = false;
-			} //Não há colisão no eixo X
+			} //Nï¿½o hï¿½ colisï¿½o no eixo X
 
 			return hit;
 		} //blockRectangle
@@ -272,21 +272,21 @@ var Entity = Class.extend(function () {
 						if (vx > 0) {
 							collisionSide = "LEFT";
 
-							// Mover a entidade para fora da colisão
+							// Mover a entidade para fora da colisï¿½o
 							this.x = this.x + overlapX;
 						} else {
 							collisionSide = "RIGHT";
 
-							// Mover a entidade para fora da colisão
+							// Mover a entidade para fora da colisï¿½o
 							this.x = this.x - overlapX;
 						}
 					}
 				} else {
-					//Não há colisão
+					//Nï¿½o hï¿½ colisï¿½o
 					collisionSide = -1;
 				}
 			} else {
-				//Não há colisão
+				//Nï¿½o hï¿½ colisï¿½o
 				collisionSide = -1;
 			}
 			return collisionSide;

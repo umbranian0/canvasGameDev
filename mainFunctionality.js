@@ -5,6 +5,8 @@
 	//variaveis para a camera dinamica
 	var gameWorld = undefined;
 	var camera = undefined;
+	var oBackground;
+
 	//guarda material necessario para o jogo
 	var canvases = {
 		background: {
@@ -25,7 +27,8 @@
 	var teclas = new Array(255);
 	//variaveis para os objetos do jogo
 	var umTanque = undefined;
-
+	var enemy;
+	var enemyArray = [];
 	//arrays para testes de colisão
 	var asBalas = [];
 	var osFogos = [];
@@ -98,6 +101,10 @@
 		var spTanque = new SpriteSheet();
 		spTanque.load("assets//tank.png", "assets//tank.json", loaded);
 		assets.push(spTanque);
+
+		var spriteFemale = new SpriteSheet();
+		spriteFemale.load("assets//female.png", "assets//female.json", loaded);
+		assets.push(spriteFemale);
 		// carregar os sons
 		//TODO
 	}
@@ -131,6 +138,7 @@
 
 		//carregar background
 		oBackground = new Background(gSpriteSheets['assets//background.png'], 0, 0);
+		
 
 		// ajustar os canvas ao tamanho da janela
 		canvases.background.canvas.width = window.innerWidth;
@@ -139,8 +147,11 @@
 		canvases.entities.canvas.height = oBackground.height;
 		canvases.components.canvas.width = window.innerWidth;
 		canvases.components.canvas.height = oBackground.height;
-
-
+ 
+		
+		
+		
+		oBackground.x=Math.floor(oBackground.width*(-2/3));
 		//dar load da camera e do Game world de forma a fazer o mapa dinamico
 		// 1 -  criar o gameWorld
 		gameWorld = new GameWorld(0, 0, canvas.width, canvas.height);
@@ -151,16 +162,10 @@
 
 		//camera.center(gameWorld);
 		// carregar as spritesheets
-
-
-		//configurar background e camera
-		// 3 - configurar o background
-		oBackground.x = Math.floor(oBackground.width / 3) * -2;
-
-
-
+		enemy = new 
+			
 		// criar as entidades
-		umTanque = new Tank(gSpriteSheets['assets//tank.png'], canvas.width - 100, canvas.height - 150, GameSounds.TANQUE);
+		umTanque = new Tank(gSpriteSheets['assets//tank.png'], camera.x + 100 , canvas.height - 150, GameSounds.TANQUE);
 
 		//armazenar entidades
 		entities.push(oBackground);
@@ -225,6 +230,7 @@
 				umTanque.podeDisparar = true;
 				break;
 		}
+		
 		umTanque.parar();
 		//para o background quando para de carregar
 		oBackground.parar();
@@ -234,7 +240,34 @@
 	// função que verifica as colisões
 	function checkColisions() {
 		//
+			//reposicionar o background consoante a posição do tanque
+			console.log(oBackground.x);
+			if (umTanque.dir === -1) {
+				if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2){
+					oBackground.x = 0;
+				}
+					console.log("andou direita");
+			} else if (umTanque.dir === 1) {
+				if (oBackground.x >= 0){
+					oBackground.x = (Math.floor(oBackground.width / 3)) * - 2;
+				}
+					console.log("andou esquerda");
+			}
 
+			// 3 - animar o background se o tanque atingir os limites interiores da c�mara
+			//     a uma velocidade de 1/3 da velocidade do tanque	
+
+			if (umTanque.x < camera.leftInnerBoundary()) {
+				umTanque.x = camera.leftInnerBoundary();
+				oBackground.vx = umTanque.vx / 3;
+			
+			}
+
+			if (umTanque.x + umTanque.width > camera.rightInnerBoundary()) {
+				umTanque.x = camera.rightInnerBoundary() - umTanque.width;
+				oBackground.vx = umTanque.vx / 3 * - 1;
+				
+			}
 	}//checkColisions
 
 	// Ciclo de jogo. Chamada a cada refrescamento do browser (sempres que possível)
@@ -269,29 +302,6 @@
 				entities.push(umaBala);
 			}
 
-
-			//reposicionar o background consoanta a posição do tanque
-			if (umTanque.dir === -1) {
-				if (oBackground.x >= 0)
-					oBackground.x = (Math.floor(oBackground.width / 3)) * -2;
-			} else if (umTanque.dir === 1) {
-				if (oBackground.x <= (Math.floor(oBackground.width / 3)) * -2)
-					oBackground.x = 0;
-			}
-
-			// 3 - animar o background se o tanque atingir os limites interiores da c�mara
-			//     a uma velocidade de 1/3 da velocidade do tanque	
-
-			if (umTanque.x < camera.leftInnerBoundary()) {
-				umTanque.x = camera.leftInnerBoundary();
-				oBackground.vx = umTanque.vx / 3;
-			}
-
-			if (umTanque.x + umTanque.width > camera.rightInnerBoundary()) {
-				umTanque.x = camera.rightInnerBoundary() - umTanque.width;
-				oBackground.vx = umTanque.vx / 3 * - 1;
-			}
-
 			//update das entidades
 			for (var i = 0; i < entities.length; i++) {
 				entities[i].update();
@@ -299,15 +309,15 @@
 
 			checkColisions();
 			clearArrays();
-
-			render();
-
+			
 			// se o soldado morre para o jogo
 			if (!umTanque.active) {
 				stopGame();
 			} else {
 				animationHandler = requestAnimationFrame(update, canvas)
 			};
+			
+			render();
 		}
 	}//update
 
@@ -325,7 +335,8 @@
 	function render() {
 
 		canvases.entities.ctx.clearRect(0, 0, canvas.width, canvas.height); //limpa canvas
-
+		canvases.background.ctx.clearRect(0, 0, canvas.width, canvas.height); //limpa canvas
+		
 		for (var i = 1; i < entities.length; i++) {
 			var entity = entities[i];
 			//entidades fora do canvas não se desenham
@@ -337,8 +348,9 @@
 				if (debugMode) entities[i].drawColisionBoundaries(canvases.entities.ctx, true, false, "blue", "red");
 			}
 		}
-		//desenha o background
-		camera.drawFrame(canvases.entities.ctx, true);
+		//desenha o frame da camera 
+		//debug
+		//camera.drawFrame(canvases.entities.ctx, true);
 		//renderiza a camera dinamica
 		oBackground.render(canvases.background.ctx);
 
