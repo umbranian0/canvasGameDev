@@ -17,7 +17,7 @@ var Female = Entity.extend(function () {
 		this.x = x;
 		this.y = y;
 		this.spriteSheet = spriteSheet;
-		this.currState = this.states.PARADO;
+		this.currState = this.states.Idle;
 		this.currentFrame = 0;
 		this.sounds = sounds;
 		setup();
@@ -30,8 +30,8 @@ var Female = Entity.extend(function () {
 
 		this.currentFrame = (++this.currentFrame)%this.frames.length;
 		
-		this.width = this.frames[this.currentFrame].width; //atualizar a altura
-		this.height = this.frames[this.currentFrame].height; // atualizar os
+		this.width = this.frames[this.currentFrame].width * 0.5; //atualizar a altura
+		this.height = this.frames[this.currentFrame].height * 0.5; // atualizar os
 		this.updateSize();
 		
 		if (this.currState === this.states.DISPARAR && this.currentFrame == this.frames.length - 1) {
@@ -42,13 +42,17 @@ var Female = Entity.extend(function () {
 
 	var setup = function () {
 
-		this.eStates.Attack = this.spriteSheet.getStats('Attack');
-		this.eStates.Walk = this.spriteSheet.getStats('Walk');
-		this.eStates.Idle = this.spriteSheet.getStats('Idle');
-		this.eStates.Dead = this.spriteSheet.getStats('Dead');
+		this.eStates.Attack = this.spriteSheet.getStats(this.states.Attack);
+		this.eStates.Walk = this.spriteSheet.getStats(this.states.Walk);
+		this.eStates.Idle = this.spriteSheet.getStats(this.states.Idle);
+		this.eStates.Dead = this.spriteSheet.getStats(this.states.Dead);
+
+
 
 		this.frames = this.eStates[this.currState];
+	
 		this.width = this.frames[0].width; //atualizar a altura
+	
 		this.height = this.frames[0].height; // atualizar os
 		// atualizar o array de frames atual
 
@@ -62,7 +66,7 @@ var Female = Entity.extend(function () {
 		toogleState(this.states.Walk);
 	};
 
-	this.parado = function () {
+	this.parar = function () {
 		toogleState(this.states.Idle);
 	//	this.sounds.DISPARAR.play(false, 1);
 	};

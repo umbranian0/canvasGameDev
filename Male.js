@@ -17,7 +17,7 @@ var Male = Entity.extend(function () {
 		this.x = x;
 		this.y = y;
 		this.spriteSheet = spriteSheet;
-		this.currState = this.states.PARADO;
+		this.currState = this.states.Idle;
 		this.currentFrame = 0;
 		this.sounds = sounds;
 		setup();
@@ -30,8 +30,8 @@ var Male = Entity.extend(function () {
 
 		this.currentFrame = (++this.currentFrame)%this.frames.length;
 		
-		this.width = this.frames[this.currentFrame].width; //atualizar a altura
-		this.height = this.frames[this.currentFrame].height; // atualizar os
+		this.width = this.frames[this.currentFrame].width * 0.5; //atualizar a altura
+		this.height = this.frames[this.currentFrame].height * 0.5; // atualizar os
 		this.updateSize();
 		
 		if (this.currState === this.states.DISPARAR && this.currentFrame == this.frames.length - 1) {
@@ -62,7 +62,7 @@ var Male = Entity.extend(function () {
 		toogleState(this.states.Walk);
 	};
 
-	this.parado = function () {
+	this.parar = function () {
 		toogleState(this.states.Idle);
 	//	this.sounds.DISPARAR.play(false, 1);
 	};
