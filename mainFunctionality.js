@@ -6,6 +6,7 @@
 	var gameWorld = undefined;
 	var camera = undefined;
 	var oBackground;
+	var countBackgroundLoops = 0;
 
 	//guarda material necessario para o jogo
 	var canvases = {
@@ -181,14 +182,14 @@
 	function setUpSprites() {
 		// criar as entidades
 		oPlayer = new Male(gSpriteSheets['assets//male.png'], camera.x + 100, canvas.height - 150, GameSounds.TANQUE);
-		enemy = new Female(gSpriteSheets['assets//female.png'],camera.width +200 , canvas.height - 150 , GameSounds.TANQUE);
+		enemy = new Female(gSpriteSheets['assets//female.png'], camera.width + 200, canvas.height - 150, GameSounds.TANQUE);
 		//armazenar entidades
 		entities.push(enemy);
 		entities.push(oBackground);
 		entities.push(oPlayer);
 	}//setUpSprites
 
-	
+
 	function setUpGameCamera() {
 		// aplicar efeitos gráficos ao canvas
 		//oBackground.render(canvases.background.ctx); //o background é estático, desenha-se aqui apenas uma ve
@@ -203,8 +204,8 @@
 		canvases.entities.canvas.height = oBackground.height;
 		canvases.components.canvas.width = window.innerWidth;
 		canvases.components.canvas.height = oBackground.height;
-
-		oBackground.x = Math.floor(oBackground.width * (-2 / 3));
+		oBackground.x = 0 ;
+	//	oBackground.x = Math.floor(oBackground.width * (-2 / 3));
 		//dar load da camera e do Game world de forma a fazer o mapa dinamico
 		// 1 -  criar o gameWorld
 		gameWorld = new GameWorld(0, 0, canvas.width, canvas.height);
@@ -234,6 +235,10 @@
 	function keyDownHandler(e) {
 		var codTecla = e.keyCode;
 		teclas[codTecla] = true;
+		//
+		if (teclas[keyboard.SPACE]) {
+			oPlayer.jump = true;
+		}
 
 	}//keyDown
 
@@ -248,9 +253,7 @@
 			case keyboard.KPAD_MINUS:
 				oPlayer.vx = oPlayer.vy -= 3;
 				break;
-			case keyboard.SPACE:
-				oPlayer.podeDisparar = true;
-				break;
+	
 		}
 
 		oPlayer.parar();
@@ -267,64 +270,49 @@
 		if (oPlayer.dir === -1) {
 			if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2) {
 				oBackground.x = 0;
-			}
-			//console.log("andou direita");
+				countBackgroundLoops++;
+				console.log(countBackgroundLoops);
+			}//direita
 		} else if (oPlayer.dir === 1) {
 			if (oBackground.x >= 0) {
 				oBackground.x = (Math.floor(oBackground.width / 3)) * - 2;
-			}
-		//	console.log("andou esquerda");
+			}//esquera
 		}
 
 		// 3 - animar o background se o tanque atingir os limites interiores da c�mara
 		//     a uma velocidade de 1/3 da velocidade do tanque	
 
-		if (oPlayer.x < camera.leftInnerBoundary()) {
-			oPlayer.x = camera.leftInnerBoundary();
-			oBackground.vx = oPlayer.vx / 3;
+		/*	
+			if (oPlayer.x < camera.leftInnerBoundary() && oBackground.x > 0) {
+				oPlayer.x = camera.leftInnerBoundary();
+				oBackground.vx = oPlayer.vx / 3;
+	
+			}*/
 
-		}
-
-		if (oPlayer.x + oPlayer.width > camera.rightInnerBoundary()) {
+		if (oPlayer.x + oPlayer.width - 10 > camera.rightInnerBoundary()) {
 			oPlayer.x = camera.rightInnerBoundary() - oPlayer.width;
 			oBackground.vx = oPlayer.vx / 3 * - 1;
 
 		}
+
+
+		
 	}//checkColisions
 
+	function setAccelerationAndFriction(obj, direction) {
+		if (direction === "left") {
+			obj.accelerationX = -0.2;
+			obj.friction = 1;
+		} else if (direction === "right") {//case right
+			obj.accelerationX = 0.2;
+			obj.friction = 1;
+		}
+	}
 	// Ciclo de jogo. Chamada a cada refrescamento do browser (sempres que possível)
 	function update() {
 		if (gameState == GameStates.RUNNING) {
-			//Create the animation loop
-			if (teclas[keyboard.LEFT]) {
-				oPlayer.andar();
-				oPlayer.x -= oPlayer.vx;
-				oPlayer.dir = 1;
-			}
-			if (teclas[keyboard.RIGHT]) {
-				oPlayer.andar();
-				oPlayer.x += oPlayer.vx;
-				oPlayer.dir = -1;
-			}
-			if (teclas[keyboard.UP])
-				oPlayer.y = oPlayer.y - oPlayer.vy < canvas.height - 130 ? canvas.height - 130 : oPlayer.y - oPlayer.vy;
-			if (teclas[keyboard.DOWN])
-				oPlayer.y = oPlayer.bottom() + oPlayer.vy > canvas.height ? canvas.height - oPlayer.height : oPlayer.y + oPlayer.vy;
-/*
-			if (oPlayer.podeDisparar) {
-				oPlayer.podeDisparar = false;
-				oPlayer.disparar();
-				var fogo = new Fogo(gSpriteSheets['assets//tank.png'], oPlayer.x - 30, oPlayer.y + oPlayer.height / 2.5);
-
-				entities.push(fogo);
-				osFogos.push(fogo);
-
-				var umaBala = new Bala(gSpriteSheets['assets//tank.png'], oPlayer.x - 30, oPlayer.y + oPlayer.height / 2.5, 100, GameSounds.BALA);
-				asBalas.push(umaBala);
-				entities.push(umaBala);
-			}
-			*/
-
+			//execute game play validations
+			gamePlay();
 			//update das entidades
 			for (var i = 0; i < entities.length; i++) {
 				entities[i].update();
@@ -337,12 +325,45 @@
 			if (!oPlayer.active) {
 				stopGame();
 			} else {
-				animationHandler = requestAnimationFrame(update, canvas)
+				animationHandler = requestAnimationFrame(update, canvas);
 			};
 
 			render();
-		}
+		}//running game
+
 	}//update
+
+	function gamePlay() {
+		//Create the animation loop
+		if (teclas[keyboard.LEFT] && oPlayer.x > 0) {
+			oPlayer.andar();
+			oPlayer.x -= oPlayer.vx;
+			oPlayer.dir = 1;
+			setAccelerationAndFriction("left");
+		}
+		if (teclas[keyboard.RIGHT]) {
+			oPlayer.andar();
+			oPlayer.x += oPlayer.vx;
+			oPlayer.dir = -1;
+			setAccelerationAndFriction("right");
+		}
+		if (teclas[keyboard.UP])
+			oPlayer.y = oPlayer.y - oPlayer.vy < canvas.height - 150 ? canvas.height - 150 : oPlayer.y - oPlayer.vy;
+		if (teclas[keyboard.DOWN])
+			oPlayer.y = oPlayer.bottom() + oPlayer.vy > canvas.height ? canvas.height - oPlayer.height : oPlayer.y + oPlayer.vy;
+
+		if (teclas[keyboard.LSHIFT] || teclas[keyboard.RSHIFT])
+			oPlayer.atacar();
+
+		//console.log(oPlayer.isOnGround);
+		//Space
+		if (oPlayer.jump) {
+			oPlayer.saltar();
+	
+		}//salta
+
+	}//gamePlay
+
 
 	// Limpeza das entidades desativadas
 	function clearArrays() {
@@ -373,7 +394,7 @@
 		}
 		//desenha o frame da camera 
 		//debug
-		//camera.drawFrame(canvases.entities.ctx, true);
+		camera.drawFrame(canvases.entities.ctx, true);
 		//renderiza a camera dinamica
 		oBackground.render(canvases.background.ctx);
 

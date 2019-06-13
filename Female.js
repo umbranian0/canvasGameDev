@@ -20,6 +20,18 @@ var Female = Entity.extend(function () {
 		this.currState = this.states.Idle;
 		this.currentFrame = 0;
 		this.sounds = sounds;
+		//Physics properties
+		this.accelerationX = 0;
+		this.accelerationY = 0;
+		this.speedLimit = 5;
+		this.friction = 0.96;
+		this.bounce = -0.7;
+		this.gravity = 0.3;
+
+		//Platform game properties   
+		this.isOnGround = undefined;
+		this.jumpForce = -10;
+	
 		setup();
 	};
 
@@ -28,12 +40,12 @@ var Female = Entity.extend(function () {
 		if (this.currState == this.states.ATINGIDO && this.currentFrame == this.frames.length - 1)
 			return;
 
-		this.currentFrame = (++this.currentFrame)%this.frames.length;
-		
+		this.currentFrame = (++this.currentFrame) % this.frames.length;
+
 		this.width = this.frames[this.currentFrame].width * 0.5; //atualizar a altura
 		this.height = this.frames[this.currentFrame].height * 0.5; // atualizar os
 		this.updateSize();
-		
+
 		if (this.currState === this.states.DISPARAR && this.currentFrame == this.frames.length - 1) {
 			this.parar();
 		}
@@ -50,9 +62,9 @@ var Female = Entity.extend(function () {
 
 
 		this.frames = this.eStates[this.currState];
-	
+
 		this.width = this.frames[0].width; //atualizar a altura
-	
+
 		this.height = this.frames[0].height; // atualizar os
 		// atualizar o array de frames atual
 
@@ -66,9 +78,15 @@ var Female = Entity.extend(function () {
 		toogleState(this.states.Walk);
 	};
 
+	this.saltar = function () {
+		this.vy += this.jumpForce;
+		this.isOnGround = false;
+		this.friction = 1;
+	}
+
 	this.parar = function () {
 		toogleState(this.states.Idle);
-	//	this.sounds.DISPARAR.play(false, 1);
+		//	this.sounds.DISPARAR.play(false, 1);
 	};
 
 	this.morto = function () {
@@ -76,7 +94,7 @@ var Female = Entity.extend(function () {
 	};
 
 	var toogleState = function (theState) {
-		if (this.killed)return;
+		if (this.killed) return;
 		if (this.currState != theState) {
 			this.currState = theState;
 			this.frames = this.eStates[theState];
