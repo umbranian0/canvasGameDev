@@ -1,4 +1,4 @@
-var Fogo = Entity.extend(function () {
+var Ataque = Entity.extend(function () {
 		this.currState = undefined; // estado atual;
 		this.states = {
 			ATIVO: 'ATIVO'
@@ -18,8 +18,8 @@ var Fogo = Entity.extend(function () {
 		this.update = function () {
 			if (!this.active) return;
 
-			// passar à proxima frame e voltar a zero se chegar ao fim do array; Método mais eficiente pois utiliza só operações
-			// aritméticas e não recorre a condições
+			// passar ï¿½ proxima frame e voltar a zero se chegar ao fim do array; Mï¿½todo mais eficiente pois utiliza sï¿½ operaï¿½ï¿½es
+			// aritmï¿½ticas e nï¿½o recorre a condiï¿½ï¿½es
 			this.currentFrame = (++this.currentFrame) % this.frames.length;
 
 			this.width = this.frames[this.currentFrame].width; //atualizar a largura

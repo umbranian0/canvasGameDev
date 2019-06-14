@@ -1,7 +1,7 @@
 var Zombies = Entity.extend(function () {
 	this.currState = undefined; // estado atual;
 
-	var podeDisparar = false;
+	var podeAtacar = false;
 
 	this.states = {
 		Attack: 'Attack',
@@ -30,7 +30,7 @@ var Zombies = Entity.extend(function () {
 		this.jump_y = this.y;
 		this.limit = 100;
 		this.goingDown = false;
-
+		this.isDead = false;
 		
 		this.visible = false;
 		//Platform game properties   
@@ -89,6 +89,7 @@ var Zombies = Entity.extend(function () {
 
 	this.morto = function () {
 		toogleState(this.states.Dead);
+		this.isDead = true;
 	};
 
 	var toogleState = function (theState) {

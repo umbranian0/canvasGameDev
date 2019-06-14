@@ -31,8 +31,8 @@
 	var enemy;
 	var enemyArray = [];
 	//arrays para testes de colisão
-	var asBalas = [];
-	var osFogos = [];
+	var ataquesAliados = [];
+	var ataquesInimigos = [];
 
 	//degbug
 	var debugMode = true;
@@ -256,7 +256,9 @@
 			case keyboard.KPAD_MINUS:
 				oPlayer.vx = oPlayer.vy -= 3;
 				break;
-
+			case keyboard.LSHIFT, keyboard.RSHIFT:
+				oPlayer.podeAtacar = true;
+				break;
 		}
 
 		oPlayer.parar();
@@ -269,7 +271,6 @@
 	function checkColisions() {
 		if (!enemy.visible) {
 			//reposicionar o background consoante a posição do tanque
-			//	console.log(oBackground.x);
 			if (oPlayer.dir === -1) {
 				if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2) {
 					oBackground.x = 0;
@@ -281,16 +282,8 @@
 					oBackground.x = (Math.floor(oBackground.width / 3)) * - 2;
 				}//esquera
 			}
-
 			// 3 - animar o background se o tanque atingir os limites interiores da c�mara
 			//     a uma velocidade de 1/3 da velocidade do tanque	
-			/*	
-				if (oPlayer.x < camera.leftInnerBoundary() && oBackground.x > 0) {
-					oPlayer.x = camera.leftInnerBoundary();
-					oBackground.vx = oPlayer.vx / 3;
-		
-				}*/
-
 			if (oPlayer.x + oPlayer.width - 10 > camera.rightInnerBoundary()) {
 				oPlayer.x = camera.rightInnerBoundary() - oPlayer.width;
 				oBackground.vx = oPlayer.vx / 3 * - 1;
@@ -299,6 +292,25 @@
 		}
 		else {//enemy is visible
 			oBackground.x = oBackground.x;
+
+			if (!enemy.isDead) {//se nao estiver morto
+				oPlayer.blockRectangle(enemy);
+			}//bloqueia contra o inimigo
+
+
+			for (var i = 0; i < ataquesAliados.length; i++) {
+
+				if (!ataquesAliados[i].isColliding 
+					&& enemy.hitTestCircle(ataquesAliados[i])) {
+					console.log("acertou");
+					ataquesAliados[i].isColliding = true;
+				//	enemy.energia -= ataquesAliados[i].damageLevel;
+
+				//	ataquesAliados[i].explodir();
+				//	barraEnergiaSpitfire.update(enemy.energia);
+				};
+
+			}
 		}
 	}//checkColisions
 
@@ -365,8 +377,17 @@
 		if (teclas[keyboard.DOWN])
 			oPlayer.y = oPlayer.bottom() + oPlayer.vy > canvas.height ? canvas.height - oPlayer.height : oPlayer.y + oPlayer.vy;
 
-		if (teclas[keyboard.LSHIFT] || teclas[keyboard.RSHIFT])
-			oPlayer.atacar();
+		if (oPlayer.podeAtacar){
+			oPlayer.atacar();//status == atack
+			//criar novo ataque
+			let zombieAtaque = new Ataque(
+				gSpriteSheets['assets//male.png'],
+				oPlayer.x + oPlayer.dir == -1? +50 : -50, //define caminho do ataque
+				oPlayer.y + oPlayer.height /2.5	
+				)
+
+			oPlayer.podeAtacar = false;
+		}
 
 		//console.log(oPlayer.isOnGround);
 		//Space
