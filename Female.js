@@ -27,6 +27,7 @@ var Female = Entity.extend(function () {
 		this.friction = 0.96;
 		this.bounce = -0.7;
 		this.gravity = 0.3;
+		this.visible = undefined;
 
 		//Platform game properties   
 		this.isOnGround = undefined;

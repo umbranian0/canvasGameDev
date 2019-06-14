@@ -181,12 +181,15 @@
 
 	function setUpSprites() {
 		// criar as entidades
-		oPlayer = new Male(gSpriteSheets['assets//male.png'], camera.x + 100, canvas.height - 150, GameSounds.TANQUE);
-		enemy = new Female(gSpriteSheets['assets//female.png'], camera.width + 200, canvas.height - 150, GameSounds.TANQUE);
+		oPlayer = new Zombies(gSpriteSheets['assets//male.png'], camera.x + 100, canvas.height - 150, GameSounds.TANQUE);
+		enemy = new Zombies(gSpriteSheets['assets//female.png'], camera.width - 200, canvas.height - 150, GameSounds.TANQUE);
+
+		oPlayer.visible = true;
 		//armazenar entidades
 		entities.push(enemy);
 		entities.push(oBackground);
 		entities.push(oPlayer);
+		entities.push(enemy);
 	}//setUpSprites
 
 
@@ -204,8 +207,8 @@
 		canvases.entities.canvas.height = oBackground.height;
 		canvases.components.canvas.width = window.innerWidth;
 		canvases.components.canvas.height = oBackground.height;
-		oBackground.x = 0 ;
-	//	oBackground.x = Math.floor(oBackground.width * (-2 / 3));
+		oBackground.x = 0;
+		//	oBackground.x = Math.floor(oBackground.width * (-2 / 3));
 		//dar load da camera e do Game world de forma a fazer o mapa dinamico
 		// 1 -  criar o gameWorld
 		gameWorld = new GameWorld(0, 0, canvas.width, canvas.height);
@@ -253,7 +256,7 @@
 			case keyboard.KPAD_MINUS:
 				oPlayer.vx = oPlayer.vy -= 3;
 				break;
-	
+
 		}
 
 		oPlayer.parar();
@@ -264,39 +267,39 @@
 
 	// função que verifica as colisões
 	function checkColisions() {
-		//
-		//reposicionar o background consoante a posição do tanque
-	//	console.log(oBackground.x);
-		if (oPlayer.dir === -1) {
-			if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2) {
-				oBackground.x = 0;
-				countBackgroundLoops++;
-				console.log(countBackgroundLoops);
-			}//direita
-		} else if (oPlayer.dir === 1) {
-			if (oBackground.x >= 0) {
-				oBackground.x = (Math.floor(oBackground.width / 3)) * - 2;
-			}//esquera
-		}
+		if (!enemy.visible) {
+			//reposicionar o background consoante a posição do tanque
+			//	console.log(oBackground.x);
+			if (oPlayer.dir === -1) {
+				if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2) {
+					oBackground.x = 0;
+					countBackgroundLoops++;
+					console.log(countBackgroundLoops);
+				}//direita
+			} else if (oPlayer.dir === 1) {
+				if (oBackground.x >= 0) {
+					oBackground.x = (Math.floor(oBackground.width / 3)) * - 2;
+				}//esquera
+			}
 
-		// 3 - animar o background se o tanque atingir os limites interiores da c�mara
-		//     a uma velocidade de 1/3 da velocidade do tanque	
-
-		/*	
-			if (oPlayer.x < camera.leftInnerBoundary() && oBackground.x > 0) {
-				oPlayer.x = camera.leftInnerBoundary();
-				oBackground.vx = oPlayer.vx / 3;
-	
-			}*/
-
-		if (oPlayer.x + oPlayer.width - 10 > camera.rightInnerBoundary()) {
-			oPlayer.x = camera.rightInnerBoundary() - oPlayer.width;
-			oBackground.vx = oPlayer.vx / 3 * - 1;
-
-		}
-
-
+			// 3 - animar o background se o tanque atingir os limites interiores da c�mara
+			//     a uma velocidade de 1/3 da velocidade do tanque	
+			/*	
+				if (oPlayer.x < camera.leftInnerBoundary() && oBackground.x > 0) {
+					oPlayer.x = camera.leftInnerBoundary();
+					oBackground.vx = oPlayer.vx / 3;
 		
+				}*/
+
+			if (oPlayer.x + oPlayer.width - 10 > camera.rightInnerBoundary()) {
+				oPlayer.x = camera.rightInnerBoundary() - oPlayer.width;
+				oBackground.vx = oPlayer.vx / 3 * - 1;
+
+			}
+		}
+		else {//enemy is visible
+			oBackground.x = oBackground.x;
+		}
 	}//checkColisions
 
 	function setAccelerationAndFriction(obj, direction) {
@@ -307,15 +310,23 @@
 			obj.accelerationX = 0.2;
 			obj.friction = 1;
 		}
-	}
+	}//setAcelerationAndFriction
+
+
 	// Ciclo de jogo. Chamada a cada refrescamento do browser (sempres que possível)
 	function update() {
 		if (gameState == GameStates.RUNNING) {
 			//execute game play validations
 			gamePlay();
+
 			//update das entidades
 			for (var i = 0; i < entities.length; i++) {
 				entities[i].update();
+			}
+
+			//set zombuie to visible
+			if (countBackgroundLoops == countBackgroundLoops) {
+				enemy.visible = true;
 			}
 
 			checkColisions();
@@ -339,12 +350,14 @@
 			oPlayer.andar();
 			oPlayer.x -= oPlayer.vx;
 			oPlayer.dir = 1;
+			oPlayer.flipH = -1;
 			setAccelerationAndFriction("left");
 		}
-		if (teclas[keyboard.RIGHT]) {
+		if (teclas[keyboard.RIGHT] && oPlayer.x < camera.width - oPlayer.width) {
 			oPlayer.andar();
 			oPlayer.x += oPlayer.vx;
 			oPlayer.dir = -1;
+			oPlayer.flipH = 1;
 			setAccelerationAndFriction("right");
 		}
 		if (teclas[keyboard.UP])
@@ -359,7 +372,7 @@
 		//Space
 		if (oPlayer.jump) {
 			oPlayer.saltar();
-	
+
 		}//salta
 
 	}//gamePlay

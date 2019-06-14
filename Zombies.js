@@ -1,4 +1,4 @@
-var Male = Entity.extend(function () {
+var Zombies = Entity.extend(function () {
 	this.currState = undefined; // estado atual;
 
 	var podeDisparar = false;
@@ -30,6 +30,9 @@ var Male = Entity.extend(function () {
 		this.jump_y = this.y;
 		this.limit = 100;
 		this.goingDown = false;
+
+		
+		this.visible = false;
 		//Platform game properties   
 		this.isOnGround = undefined;
 		this.jumpForce = -10;
