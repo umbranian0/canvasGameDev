@@ -1,7 +1,8 @@
 var Ataque = Entity.extend(function () {
 		this.currState = undefined; // estado atual;
 		this.states = {
-			ATIVO: 'ATIVO'
+			Muzzle: 'Muzzle',
+			Bullet: 'Bullet'
 		};
 		this.currentFrame = 0;
 
@@ -10,7 +11,7 @@ var Ataque = Entity.extend(function () {
 			this.x = x;
 			this.y = y;
 			this.spriteSheet = spriteSheet;
-			this.currState = this.states.ATIVO;
+			this.currState = this.states.Muzzle;
 			this.currentFrame = 0;
 			setup();
 		};
@@ -35,7 +36,9 @@ var Ataque = Entity.extend(function () {
 		};
 
 		var setup = function () {
-			this.eStates.ATIVO = this.spriteSheet.getStats('FOGO');
+			this.eStates.Muzzle = this.spriteSheet.getStats('Muzzle');
+			this.eStates.Bullet = this.spriteSheet.getStats('Bullet');
+			
 			this.frames = this.eStates[this.currState];
 			this.width = this.frames[0].width; //atualizar a altura
 			this.height = this.frames[0].height; // atualizar os

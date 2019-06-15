@@ -6,7 +6,11 @@
 	var gameWorld = undefined;
 	var camera = undefined;
 	var oBackground;
+	//count dos loops para adicionar os inimigos
 	var countBackgroundLoops = 0;
+	var previousCountBackgroundLoops = 1;
+	//contador para o niveis
+	var gamelevelCounter = 0;
 
 	//guarda material necessario para o jogo
 	var canvases = {
@@ -111,6 +115,11 @@
 		spBackground.load("assets//background.png", "assets//background.json", loaded);
 		assets.push(spBackground);
 
+		/*
+		let spBackground2 = new SpriteSheet();
+		spBackground.load("assets//background_2.png", "assets//background_2.json", loaded);
+		assets.push(spBackground2);
+*/
 		let spTanque = new SpriteSheet();
 		spTanque.load("assets//tank.png", "assets//tank.json", loaded);
 		assets.push(spTanque);
@@ -126,6 +135,10 @@
 		let spriteFemale = new SpriteSheet();
 		spriteFemale.load("assets//female.png", "assets//female.json", loaded);
 		assets.push(spriteFemale);
+
+		let spriteAtaque = new SpriteSheet();
+		spriteAtaque.load("assets//ataque.png", "assets//ataque.json", loaded);
+		assets.push(spriteAtaque);
 	}//loadSpriteSheet
 
 	//load assets
@@ -156,7 +169,9 @@
 		loadInfo.classList.toggle("hidden"); // esconder a informaçao de loading
 
 		//carregar background
-		oBackground = new Background(gSpriteSheets['assets//background.png'], 0, 0);
+	//	if(gamelevelCounter === 0)
+		oBackground = new Background(
+			gSpriteSheets['assets//background.png'], 0, 0);
 
 		//aplica definições para a camera de jogo 
 		setUpGameCamera();
@@ -182,11 +197,13 @@
 	function setUpSprites() {
 		// criar as entidades
 		oPlayer = new Zombies(gSpriteSheets['assets//male.png'], camera.x + 100, canvas.height - 150, GameSounds.TANQUE);
-		enemy = new Zombies(gSpriteSheets['assets//female.png'], camera.width - 200, canvas.height - 150, GameSounds.TANQUE);
+		enemy = new Zombies(gSpriteSheets['assets//female.png'], camera.width -100, canvas.height - 150, GameSounds.TANQUE);
+		enemy.flipH = -1 ;//roda o inimigo
+		enemy.bot = true;
 
+		//player vars
 		oPlayer.visible = true;
 		//armazenar entidades
-		entities.push(enemy);
 		entities.push(oBackground);
 		entities.push(oPlayer);
 		entities.push(enemy);
@@ -269,6 +286,13 @@
 
 	// função que verifica as colisões
 	function checkColisions() {
+		//validação para incrementar niveis
+		if(countBackgroundLoops == 10){
+			gamelevelCounter +1 ;
+			//voltar a carregar o jogo
+			setupGame();
+		}
+
 		if (!enemy.visible) {
 			//reposicionar o background consoante a posição do tanque
 			if (oPlayer.dir === -1) {
@@ -300,14 +324,12 @@
 
 			for (var i = 0; i < ataquesAliados.length; i++) {
 
-				if (!ataquesAliados[i].isColliding 
-					&& enemy.hitTestCircle(ataquesAliados[i])) {
+				if (!ataquesAliados[i].isColliding
+					&& enemy.hitTestRectangle(ataquesAliados[i])) {
 					console.log("acertou");
 					ataquesAliados[i].isColliding = true;
-				//	enemy.energia -= ataquesAliados[i].damageLevel;
-
-				//	ataquesAliados[i].explodir();
-				//	barraEnergiaSpitfire.update(enemy.energia);
+				
+					enemy.morto();
 				};
 
 			}
@@ -336,9 +358,12 @@
 				entities[i].update();
 			}
 
-			//set zombuie to visible
-			if (countBackgroundLoops == countBackgroundLoops) {
+			//set zombie to visible
+			if (countBackgroundLoops == previousCountBackgroundLoops) {//adiciona o inimigo
+				enemy.parar();
 				enemy.visible = true;
+				enemy.isDead = false;
+				previousCountBackgroundLoops ++ ;
 			}
 
 			checkColisions();
@@ -365,7 +390,7 @@
 			oPlayer.flipH = -1;
 			setAccelerationAndFriction("left");
 		}
-		if (teclas[keyboard.RIGHT] && oPlayer.x < camera.width - oPlayer.width) {
+		if (teclas[keyboard.RIGHT] && (oPlayer.x < camera.width - oPlayer.width || enemy.isDead === true)) {
 			oPlayer.andar();
 			oPlayer.x += oPlayer.vx;
 			oPlayer.dir = -1;
@@ -377,23 +402,25 @@
 		if (teclas[keyboard.DOWN])
 			oPlayer.y = oPlayer.bottom() + oPlayer.vy > canvas.height ? canvas.height - oPlayer.height : oPlayer.y + oPlayer.vy;
 
-		if (oPlayer.podeAtacar){
+		if (oPlayer.podeAtacar) {
 			oPlayer.atacar();//status == atack
 			//criar novo ataque
 			let zombieAtaque = new Ataque(
-				gSpriteSheets['assets//male.png'],
-				oPlayer.x + oPlayer.dir == -1? +50 : -50, //define caminho do ataque
-				oPlayer.y + oPlayer.height /2.5	
-				)
-
+				gSpriteSheets['assets//ataque.png'],
+				oPlayer.x + 75, //define caminho do ataque
+				oPlayer.y + oPlayer.height / 2
+			);
+			ataquesAliados.push(zombieAtaque);
+			entities.push(zombieAtaque);
+			
 			oPlayer.podeAtacar = false;
-		}
+			console.log("atacou");
+		}//atacar
 
 		//console.log(oPlayer.isOnGround);
 		//Space
 		if (oPlayer.jump) {
 			oPlayer.saltar();
-
 		}//salta
 
 	}//gamePlay

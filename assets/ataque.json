@@ -1,0 +1,92 @@
+{"frames": {
+
+"Bullet_00.png":
+{
+	"frame": {"x":0,"y":519,"w":172,"h":139},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":172,"h":139},
+	"sourceSize": {"w":172,"h":139}
+},
+"Bullet_01.png":
+{
+	"frame": {"x":0,"y":380,"w":172,"h":139},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":172,"h":139},
+	"sourceSize": {"w":172,"h":139}
+},
+"Bullet_02.png":
+{
+	"frame": {"x":0,"y":797,"w":172,"h":139},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":172,"h":139},
+	"sourceSize": {"w":172,"h":139}
+},
+"Bullet_03.png":
+{
+	"frame": {"x":0,"y":241,"w":172,"h":139},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":172,"h":139},
+	"sourceSize": {"w":172,"h":139}
+},
+"Bullet_04.png":
+{
+	"frame": {"x":0,"y":658,"w":172,"h":139},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":172,"h":139},
+	"sourceSize": {"w":172,"h":139}
+},
+"Muzzle_00.png":
+{
+	"frame": {"x":57,"y":0,"w":19,"h":241},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":19,"h":241},
+	"sourceSize": {"w":19,"h":241}
+},
+"Muzzle_01.png":
+{
+	"frame": {"x":38,"y":0,"w":19,"h":241},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":19,"h":241},
+	"sourceSize": {"w":19,"h":241}
+},
+"Muzzle_02.png":
+{
+	"frame": {"x":19,"y":0,"w":19,"h":241},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":19,"h":241},
+	"sourceSize": {"w":19,"h":241}
+},
+"Muzzle_03.png":
+{
+	"frame": {"x":0,"y":0,"w":19,"h":241},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":19,"h":241},
+	"sourceSize": {"w":19,"h":241}
+},
+"Muzzle_04.png":
+{
+	"frame": {"x":76,"y":0,"w":19,"h":241},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":19,"h":241},
+	"sourceSize": {"w":19,"h":241}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "ataque.png",
+	"format": "RGBA8888",
+	"size": {"w":172,"h":936},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:2e4fb593809525976ab4528e97080285:1998c59caa83ba37e60081f0763427bf:52873adb162a2607b4e4b58a0faeffbf$"
+}
+}
