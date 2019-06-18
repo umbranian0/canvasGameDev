@@ -143,25 +143,27 @@
 
 	//load assets
 	function loaded(assetName) {
-		if(gamelevelCounter === 0){
-		assetsLoaded++;
-		assetsLoadInfo.innerHTML = "Loading: " + assetName;
-		if (assetsLoaded < assets.length) return;
+		if (gamelevelCounter === 0) {
+			assetsLoaded++;
+			assetsLoadInfo.innerHTML = "Loading: " + assetName;
+			if (assetsLoaded < assets.length) return;
 
-		assets.splice(0); // apagar o array auxiliar usado para o load
+			assets.splice(0); // apagar o array auxiliar usado para o load
 
-		console.log(assets);
-		// Se já conseguimos chegar aqui, os assets estão carregados! Podemos começar a criar 
-		// e configurar os elementos do jogo
-		assetsLoadInfo.innerHTML = "Game Loaded! Press any key when are ready...";
+			console.log(assets);
+			// Se já conseguimos chegar aqui, os assets estão carregados! Podemos começar a criar 
+			// e configurar os elementos do jogo
+			assetsLoadInfo.innerHTML = "Game Loaded! Press any key when are ready...";
 
-		gameState = GameStates.LOADED;
-		window.addEventListener("keypress", setupGame, false); // espera por uma tecla pressionada para começar
+			console.log(gamelevelCounter);
+
+			gameState = GameStates.LOADED;
+			window.addEventListener("keypress", setupGame, false); // espera por uma tecla pressionada para começar
 		}
 		//iniciar musica
 		//GameSounds.AMBIENTE.INTRO.play(true, 1);
 
-}//loaded
+	}//loaded
 
 	function setupGame() {
 
@@ -200,15 +202,36 @@
 				gSpriteSheets['assets//background_2.png'], 0, 0);
 		else if (gamelevelCounter === 1) {
 			alert("passou nivel");
-			oBackground.changeBackground();
+			oBackground.changeBackground1();
+			countBackgroundLoops = 0;
+		}
+		else if (gamelevelCounter === 2) {
+			alert("passou nivel");
+			oBackground.changeBackground2();
+			countBackgroundLoops = 0;
+		}
+		else if (gamelevelCounter === 3) {
+			alert("passou nivel");
+			oBackground.changeBackground3();
+			countBackgroundLoops = 0;
+		}
+		else if (gamelevelCounter === 4) {
+			alert("passou nivel");
+			oBackground.changeBackground4();
+			countBackgroundLoops = 0;
 		}
 
+		else if (gamelevelCounter === 5) {
+			alert("passou nivel");
+			oBackground.changeBackground5();
+			countBackgroundLoops = 0;
+		}
 
 	}
 
 	function setUpSprites() {
 		// criar as entidades
-		oPlayer = new Zombies(gSpriteSheets['assets//male.png'], camera.x + 100, canvas.height - 150, GameSounds.TANQUE);
+		oPlayer = new Robot(gSpriteSheets['assets//robot.png'], camera.x + 100, canvas.height - 150, GameSounds.TANQUE);
 		enemy = new Zombies(gSpriteSheets['assets//female.png'], camera.width - 100, canvas.height - 150, GameSounds.TANQUE);
 		enemy.flipH = -1;//roda o inimigo
 		enemy.bot = true;
@@ -311,7 +334,6 @@
 				if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2) {
 					oBackground.x = 0;
 					countBackgroundLoops++;
-					console.log(countBackgroundLoops);
 				}//direita
 			} else if (oPlayer.dir === 1) {
 				if (oBackground.x >= 0) {
@@ -338,7 +360,6 @@
 
 				if (!ataquesAliados[i].isColliding
 					&& enemy.hitTestRectangle(ataquesAliados[i])) {
-					console.log("acertou");
 					ataquesAliados[i].isColliding = true;
 
 					enemy.morto();
