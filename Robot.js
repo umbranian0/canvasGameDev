@@ -109,6 +109,7 @@ var Robot = Entity.extend(function () {
 
 	this.atacar = function () {
 		toogleState(this.states.Shoot);
+
 	};
 
 	this.andar = function () {
@@ -138,7 +139,6 @@ var Robot = Entity.extend(function () {
 	
 	
 	
-	//nao funciona...
 	var animarSalto = function () {
 	//	console.log("salta");
 

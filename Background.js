@@ -45,10 +45,32 @@ var Background = Entity.extend(function () {
 	}.bind(this);
 
 	this.changeBackground = function (level) {
-
-		this.eStates['this.eStates.BACKGROUND_' + level] = this.spriteSheet.getStats('Background_' + level);
-		this.frames = this.eStates['this.eStates.BACKGROUND_' + level];
+	
+		this.fadeOutIn(100,level)
+	
 	}.bind(this);
+	
+	this.fadeOutIn=function(dur, level){
+		const minAlfa=0.15;
+		const delta=0.1;
+		const maxAlfa=1;
+		let dir=-1;
+		const alphaTimer = setInterval(function(){
+			this.alpha+=delta*dir;
+			//console.log(this.alpha)
+			if(this.alpha<=minAlfa && dir ===-1){
+				dir=1;
+				this.eStates['this.eStates.BACKGROUND_' + level] = this.spriteSheet.getStats('Background_' + level);
+				this.frames = this.eStates['this.eStates.BACKGROUND_' + level];		
+			} else
+			if(this.alpha>=maxAlfa&& dir ===1) { 
+				//console.log("para", alphaTimer)
+				clearInterval(alphaTimer);
+				this.alpha=maxAlfa;
+			}
+		}.bind(this), dur);
+
+	}
 
 	this.andar = function () {
 		this.vx = 1;

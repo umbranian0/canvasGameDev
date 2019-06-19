@@ -39,7 +39,7 @@
 	var ataquesInimigos = [];
 
 	//degbug
-	var debugMode = true;
+	var debugMode = false;
 	var andou = false;
 
 	//componenetes do jogo
@@ -336,7 +336,7 @@
 	// função que verifica as colisões
 	function checkColisions() {
 		//validação para incrementar niveis
-		if (countBackgroundLoops == 5) {
+		if (countBackgroundLoops == 2) {
 			gamelevelCounter++;
 			//voltar a carregar o jogo
 			chargeBackground();
@@ -415,12 +415,14 @@
 			if (countBackgroundLoops == previousCountBackgroundLoops) {//adiciona o inimigo
 				enemy.parar();
 				enemy2.parar();
-				if (countBackgroundLoops % 2 === 0) {
-					enemy2.visible = true;
-					enemy2.isDead = false;
-				} else {
-					enemy.visible = true;
-					enemy.isDead = false;
+				if (countBackgroundLoops !== 0) {
+					if (countBackgroundLoops % 2 === 0) {
+						enemy2.visible = true;
+						enemy2.isDead = false;
+					} else {
+						enemy.visible = true;
+						enemy.isDead = false;
+					}
 				}
 				previousCountBackgroundLoops++;
 			}
@@ -462,7 +464,11 @@
 			oPlayer.y = oPlayer.bottom() + oPlayer.vy > canvas.height ? canvas.height - oPlayer.height : oPlayer.y + oPlayer.vy;
 
 		if (oPlayer.podeAtacar) {
-			oPlayer.atacar();//status == atack
+			oPlayer.atacar();
+			var ataque = new Ataque(gSpriteSheets['assets//ataque.png'], oPlayer.x - 30, oPlayer.y + oPlayer.height / 3);
+			ataque.toogleState(ataque.states.Bullet);
+			entities.push(ataque);
+			//status == atack
 			//criar novo ataque
 			let zombieAtaque = new Ataque(
 				gSpriteSheets['assets//ataque.png'],
@@ -514,7 +520,7 @@
 		}
 		//desenha o frame da camera 
 		//debug
-		camera.drawFrame(canvases.entities.ctx, true);
+	//	camera.drawFrame(canvases.entities.ctx, true);
 		//renderiza a camera dinamica
 		oBackground.render(canvases.background.ctx);
 
