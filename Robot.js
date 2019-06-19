@@ -27,7 +27,6 @@ var Robot = Entity.extend(function () {
 		this.currState = this.states.Idle;
 		this.currentFrame = 0;
 		this.sounds = sounds;
-		this.life = 100;
 		//Physics properties
 		this.accelerationX = 0;
 		this.accelerationY = 0;
@@ -110,6 +109,7 @@ var Robot = Entity.extend(function () {
 
 	this.atacar = function () {
 		toogleState(this.states.Shoot);
+
 	};
 
 	this.andar = function () {
@@ -139,7 +139,6 @@ var Robot = Entity.extend(function () {
 	
 	
 	
-	//nao funciona...
 	var animarSalto = function () {
 	//	console.log("salta");
 
