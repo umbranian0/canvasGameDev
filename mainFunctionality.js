@@ -204,6 +204,7 @@
 		gameTimer = new GameTimer((canvas.width >> 1) - 25, 5, 50, 50, canvases.components.ctx, '', "red", "black", "white", update, stopGame);
 
 	}//*set up components
+
 	function chargeBackground() {
 		switch (gamelevelCounter) {
 			case 0:
@@ -211,38 +212,43 @@
 					gSpriteSheets['assets//background_2.png'], 0, 0);
 				break;
 			case 1:
-				oBackground.changeBackground(2);
-				countBackgroundLoops = 0;
-				previousCountBackgroundLoops = 0;
+				levelPauseAndResumeByLevel(2);
 				break;
 			case 2:
-				oBackground.changeBackground(3);
-				countBackgroundLoops = 0;
-				previousCountBackgroundLoops = 0;
+				levelPauseAndResumeByLevel(3);
 				break;
 
 			case 3:
-				oBackground.changeBackground(4);
-				countBackgroundLoops = 0;
-				previousCountBackgroundLoops = 0;
+				levelPauseAndResumeByLevel(4);
 				break;
 
 			case 4:
-				oBackground.changeBackground(5);
-				countBackgroundLoops = 0;
-				previousCountBackgroundLoops = 0;
+				levelPauseAndResumeByLevel(5);
 				break;
 
 			case 5:
-				oBackground.changeBackground(6);
-				countBackgroundLoops = 0;
-				previousCountBackgroundLoops = 0;
+				levelPauseAndResumeByLevel(6);
 				break;
-
-
 		}
 
 	}//chargeBackground
+
+	//not finished
+	function levelPauseAndResumeByLevel(level) {
+		//pausing game
+		gameState = GameStates.STOPED;
+		oPlayer.visible = false;
+	
+		oPlayer.parar();
+		//change level
+		oBackground.changeBackground(level);
+		countBackgroundLoops = 0;
+		previousCountBackgroundLoops = 0;
+		//resuming game
+		gameState = GameStates.RUNNING;
+		oPlayer.visible = true;
+	}//levelPauseAndResume
+
 
 	function setUpSprites() {
 		// criar as entidades
@@ -478,19 +484,21 @@
 
 		if (oPlayer.podeAtacar) {
 			oPlayer.atacar();
-			//var ataque = new Ataque(gSpriteSheets['assets//ataque.png'], oPlayer.x - 30, oPlayer.y + oPlayer.height / 3);
-			//ataque.toogleState(ataque.states.Bullet);
-	
+			var ataque = new Ataque(gSpriteSheets['assets//ataque.png'], oPlayer.x - 30, oPlayer.y + oPlayer.height / 3);
+			ataque.toogleState(ataque.states.Bullet);
+			ataquesAliados.push(ataque);
+			entities.push(ataque);
 			//status == atack
 			//criar novo ataque
-			let aBala = new Bala(gSpriteSheets['assets//ataque.png'],
-			oPlayer.x - 30, oPlayer.y + oPlayer.height / 2.5
-			, 100,  oPlayer.dir, 
-			GameSounds.BALA);
-			aBala.toogleState(ataque.states.Bullet);
-			entities.push(aBala);
-			ataquesAliados.push(aBala);
-
+			/*
+					let aBala = new Bala(gSpriteSheets['assets//ataque.png'],
+					oPlayer.x - 30, oPlayer.y + oPlayer.height / 2.5
+					, 100,  oPlayer.dir, 
+					GameSounds.BALA);
+					aBala.toogleState(ataque.states.Bullet);
+					entities.push(aBala);
+					ataquesAliados.push(aBala);
+		*/
 			oPlayer.podeAtacar = false;
 			console.log("atacou");
 		}//atacar
