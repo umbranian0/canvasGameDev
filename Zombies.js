@@ -20,6 +20,7 @@ var Zombies = Entity.extend(function () {
 		this.currState = this.states.Idle;
 		this.currentFrame = 0;
 		this.sounds = sounds;
+		this.life = 100;
 		//Physics properties
 		this.accelerationX = 0;
 		this.accelerationY = 0;

@@ -43,8 +43,8 @@
 	var andou = false;
 
 	//componenetes do jogo
-	var barraEnergiaSpitfire = undefined;
-	var barraEnergiaRyan = undefined;
+	var barraEnergiaEnemy = undefined;
+	var barraEnergiaHero = undefined;
 	var gameTimer = undefined;
 	//animações de entrada
 	var animationHandler;
@@ -171,9 +171,8 @@
 
 		loadInfo.classList.toggle("hidden"); // esconder a informaçao de loading
 
-		chargeBackground();
-		//carregar background
 
+		chargeBackground();//carregar background
 
 		//aplica definições para a camera de jogo 
 		setUpGameCamera();
@@ -181,7 +180,7 @@
 		setUpSprites();
 
 		//criar os componentes informativos e temporizadores
-
+		carregarBarrasDeEnergia();
 		//alguns efeitos 
 		canvases.background.canvas.fadeIn(1000);
 
@@ -195,6 +194,14 @@
 		window.addEventListener("keyup", keyUpHandler, false);
 
 	}//setUpGame
+
+	function carregarBarrasDeEnergia(){
+		barraEnergiaEnemy = new EnergyBar(5, 5, 120, 12, canvases.components.ctx, 'Hero\'s Life Level ', "black", "black", "red");
+		
+		barraEnergiaHero = new EnergyBar(canvas.width - 135, 5, 120, 12, canvases.components.ctx, 'Enemy\'s Life Level', "black", "black", "blue");
+		gameTimer = new GameTimer((canvas.width >> 1) - 25, 5, 50, 50, canvases.components.ctx, '', "red", "black", "white", update, stopGame);
+
+	}//carregarBarraDeEnergia
 
 	function chargeBackground() {
 		switch (gamelevelCounter) {
@@ -234,7 +241,7 @@
 
 		}
 
-	}
+	}//carrregarBackground
 
 	function setUpSprites() {
 		// criar as entidades
@@ -341,7 +348,14 @@
 			//voltar a carregar o jogo
 			chargeBackground();
 		}
+		checkCameraBounds();
+		//check colisoes balas
+		//...
 
+
+	}//checkColisions
+
+	function checkCameraBounds(){
 		if (!enemy.visible && !enemy2.visible) {
 			//reposicionar o background consoante a posição do tanque
 			if (oPlayer.dir === -1) {
@@ -387,7 +401,8 @@
 
 			}
 		}
-	}//checkColisions
+	}//checkcamerabounds
+
 
 	function setAccelerationAndFriction(obj, direction) {
 		if (direction === "left") {
@@ -404,7 +419,7 @@
 	function update() {
 		if (gameState == GameStates.RUNNING) {
 			//execute game play validations
-			gamePlay();
+			gamePlay();//contem funcionalidade do jogo
 
 			//update das entidades
 			for (var i = 0; i < entities.length; i++) {
@@ -462,6 +477,7 @@
 			oPlayer.y = oPlayer.bottom() + oPlayer.vy > canvas.height ? canvas.height - oPlayer.height : oPlayer.y + oPlayer.vy;
 
 		if (oPlayer.podeAtacar) {
+			oPlayer.podeAtacar = false;
 			oPlayer.atacar();//status == atack
 			//criar novo ataque
 			let zombieAtaque = new Ataque(
@@ -469,6 +485,7 @@
 				oPlayer.x + 75, //define caminho do ataque
 				oPlayer.y + oPlayer.height / 2
 			);
+			zombieAtaque.
 			ataquesAliados.push(zombieAtaque);
 			entities.push(zombieAtaque);
 
@@ -517,6 +534,8 @@
 		camera.drawFrame(canvases.entities.ctx, true);
 		//renderiza a camera dinamica
 		oBackground.render(canvases.background.ctx);
+		barraEnergiaEnemy.render();
+		barraEnergiaHero.render();
 
 	}//Render
 
