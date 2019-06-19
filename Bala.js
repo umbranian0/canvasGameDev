@@ -5,8 +5,8 @@ var Bala = Entity.extend(function () {
 	this.dir=1;
 
 	this.states = {
-		ATIVO: 'Bullet',
-		EXPLODIR: 'Muzzle'
+		Bullet: 'Bullet',
+		Muzzle: 'Muzzle'
 	};
 	
 	this.sounds = {};
@@ -16,8 +16,9 @@ var Bala = Entity.extend(function () {
 		this.spriteSheet = spriteSheet; // spriteSheet
 		this.x = x; //posX inicial
 		this.y = y; // posY inicial
-		this.currentState = this.states.ATIVO; //estado inicial
+		this.currentState = this.states.Bullet; //estado inicial
 		this.currentFrame = 0; //frame inicial
+		//propriedades bala
 		this.vx = 10;
 		this.vy = 0;
 		this.damageLevel = damageLevel;
@@ -34,11 +35,11 @@ var Bala = Entity.extend(function () {
 
 		this.y -= this.vy;
 
-		this.width = this.frames[this.currentFrame].width;
-		this.height = this.frames[this.currentFrame].height;
+		this.width = this.frames[this.currentFrame].width *0.5;
+		this.height = this.frames[this.currentFrame].height *0.5;
 		this.updateSize();
 
-		if (this.currState == this.states.EXPLODIR && this.currentFrame == this.frames.length - 1)
+		if (this.currState == this.states.Muzzle && this.currentFrame == this.frames.length - 1)
 			this.active = false;
 
 		this.currentFrame =  (++this.currentFrame)%this.frames.length;
@@ -46,18 +47,19 @@ var Bala = Entity.extend(function () {
 	};
 
 	var setup = function () {
-		this.eStates.ATIVO 		=	this.spriteSheet.getStats('Bullet');
-		this.eStates.EXPLODIR	=	this.spriteSheet.getStats('Muzzle');
+
+		this.eStates.Muzzle	=	this.spriteSheet.getStats('Muzzle');
+		this.eStates.Bullet 		=	this.spriteSheet.getStats('Bullet');
 
 		this.frames = this.eStates[this.currentState];
 		this.width = this.frames[0].width;
 		this.height = this.frames[0].height;
 	}.bind(this);
 
-	this.explodir = function () {
+	this.Muzzle = function () {
 		if (!this.active || this.exploding) return;
 
-		toogleState(this.states.EXPLODIR);
+		toogleState(this.states.Muzzle);
 		this.vx = 0;
 		this.vy = 0;
 		this.exploding = true;

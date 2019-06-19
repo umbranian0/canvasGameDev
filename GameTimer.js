@@ -11,7 +11,7 @@ var GameTimer = Component.extend(function () {
 		var prevTime = -1;
 		// completar
 
-		this.constructor = function (x, y, w, h, drawContext, _text, _textColor, _borderColor, _fillColor, sCallback, eCallback) {
+		this.constructor = function (x, y, w, h, drawContext, _text, _textColor, _borderColor, _fillColor, time) {
 			this.super();
 			this.x = x;
 			this.y = y;
@@ -21,11 +21,18 @@ var GameTimer = Component.extend(function () {
 			borderColor = _borderColor !== undefined ? _borderColor : "white";
 			fillColor = _fillColor !== undefined ? _fillColor : "red";
 			textColor = _textColor !== undefined ? _textColor : "black";
-			started = sCallback;
-			ended = eCallback;
-			time = 60;
+		//	started = sCallback;
+		//	ended = eCallback;
+			this.time = time;
 			this.text = time.toString();
 		};
+		this.switchLevel = function(newLevel){
+			this.time = newLevel;
+			this.text = this.time.toString();
+			this.update();
+			
+		}
+
 
 		this.start = function () {
 			timer = setInterval(update, 1000);
@@ -43,10 +50,7 @@ var GameTimer = Component.extend(function () {
 
 		var update= function () {
 
-			time--;
-			this.text = time < 10 ? "0" + time.toString() : time.toString();
-			if (time < 0)
-				finished();
+			this.text = time ;
 
 		}.bind(this);
 

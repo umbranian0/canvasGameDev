@@ -31,7 +31,7 @@ var Zombies = Entity.extend(function () {
 		this.limit = 100;
 		this.goingDown = false;
 		//activity variables
-		this.isDead = false;
+		this.isDead = true;
 		this.visible = false;
 		//bot variable 
 		this.bot = false;
@@ -60,7 +60,7 @@ var Zombies = Entity.extend(function () {
 		if(this.jump) animarSalto();
 
 		if(this.bot)
-		this.andarAutomatico;
+		andarAutomatico;
 
 	};
 
@@ -99,7 +99,9 @@ var Zombies = Entity.extend(function () {
 	};
 
 	this.andar = function () {
+
 		toogleState(this.states.Walk);
+	
 	};
 
 	this.parar = function () {
@@ -109,9 +111,8 @@ var Zombies = Entity.extend(function () {
 
 	this.morto = function () {
 		toogleState(this.states.Dead);
-		this.isDead = true;
-		
-		setTimeout(this.visible = false, 1500);
+		this.isDead = true;	
+		//setTimeout(function(){this.visible = false}, 1500);
 	};
 
 	var toogleState = function (theState) {

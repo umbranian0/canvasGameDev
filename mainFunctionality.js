@@ -45,7 +45,7 @@
 	//componenetes do jogo
 	var barraEnergiaEnemy = undefined;
 	var barraEnergiaHero = undefined;
-	var gameTimer = undefined;
+	var gameLevel = undefined;
 	//animações de entrada
 	var animationHandler;
 	var loadInfo = undefined;
@@ -171,9 +171,7 @@
 
 		loadInfo.classList.toggle("hidden"); // esconder a informaçao de loading
 
-		chargeBackground();
-		//carregar background
-
+		chargeBackground();	//carregar background
 
 		//aplica definições para a camera de jogo 
 		setUpGameCamera();
@@ -198,10 +196,10 @@
 
 	function setUpGameComponents() {
 		//criar os componentes informativos e temporizadores
-		barraEnergiaEnemy = new EnergyBar(5, 5, 120, 12, canvases.components.ctx, 'Enemy\'s Life Level ', "black", "black", "red");
+		barraEnergiaHero = new EnergyBar(5, 5, 120, 12, canvases.components.ctx, 'Hero\'s Life Level ', "black", "black", "red");
 
-		barraEnergiaHero = new EnergyBar(canvas.width - 135, 5, 120, 12, canvases.components.ctx, 'Hero\'s Life Level', "black", "black", "blue");
-		gameTimer = new GameTimer((canvas.width >> 1) - 25, 5, 50, 50, canvases.components.ctx, '', "red", "black", "white", update, stopGame);
+		barraEnergiaEnemy = new EnergyBar(canvas.width - 135, 5, 120, 12, canvases.components.ctx, 'Enemy\'s Life Level', "black", "black", "blue");
+		gameLevel = new GameTimer((canvas.width >> 1) - 25, 5, 50, 50, canvases.components.ctx, '', "red", "black", "white", gamelevelCounter);
 
 	}//*set up components
 
@@ -238,7 +236,7 @@
 		//pausing game
 		gameState = GameStates.STOPED;
 		oPlayer.visible = false;
-	
+
 		oPlayer.parar();
 		//change level
 		oBackground.changeBackground(level);
@@ -257,10 +255,7 @@
 		enemy2 = new Zombies(gSpriteSheets['assets//male.png'], camera.width - 100, canvas.height - 150, GameSounds.TANQUE);
 
 		enemy2.flipH = -1;//roda o inimigo
-		enemy2.bot = true;
-
 		enemy.flipH = -1;//roda o inimigo
-		enemy.bot = true;
 
 		//player vars
 		oPlayer.visible = true;
@@ -304,7 +299,7 @@
 	function stopGame() {
 		cancelAnimationFrame(animationHandler);
 		gameState = GameStates.STOPED;
-		//gameTimer.stop();
+		//gameLevel.stop();
 		gSoundManager.stopAll(); //p�ram-se todos os  sons
 		//GameSounds.AMBIENTE.FINAL.play(true, 0.2);
 
@@ -348,20 +343,69 @@
 
 
 	// função que verifica as colisões
+	//nao esta completa
 	function checkColisions() {
+
 		//validação para incrementar niveis
 		if (countBackgroundLoops == 2) {
 			gamelevelCounter++;
+
+			gameLevel.switchLevel(gamelevelCounter);
 			//voltar a carregar o jogo
 			chargeBackground();
 		}
 
-		checkBoundColision();
+		checkCameraBounds();//collisao da camera
+
+		//colisao com inimigos
+		if (!enemy.isDead || !enemy2.isDead) {//se nao estiver morto
+			oPlayer.blockRectangle(enemy);
+			oPlayer.blockRectangle(enemy2);
+		}//bloqueia contra o inimigo
+		for (var i = 0; i < ataquesAliados.length; i++) {
+
+			if ((!ataquesAliados[i].isColliding && enemy.hitTestRectangle(ataquesAliados[i])
+				|| (!ataquesAliados[i].isColliding && enemy2.hitTestRectangle(ataquesAliados[i]))
+				)) {
+
+				ataquesAliados[i].isColliding = true;
+/*
+
+				if (ataquesAliados[i].right() < 0 || //remove balas que saiem para fora
+					ataquesAliados[i].left() > canvas.width ||
+					ataquesAliados[i].bottom() < 0 ||
+					ataquesAliados[i].top() > canvas.height) {
+					ataquesAliados[i].active = false;
+				}
+				
+				
+				*/
+				if (!enemy.isDead) {//nao esta bem penso eu...
+					enemy.morto();
+				} else {
+					enemy2.morto();//este enemy vai logo para baixo como se estivesse morto....
+				}
+			};
+		}
+
+		///todo!!!! nao esta bom....
+
+		//retirar inimigo quando sair do background
+		if ((enemy.visible && enemy.isDead)//caso algum inimigo esteja visivel
+			|| (enemy2.visible && enemy.isDead)) {
+			enemy.y <= canvas.height + enemy.height ? enemy.y += enemy.vy : enemy.visible = false;
+			enemy2.y <= canvas.height + enemy.height ? enemy2.y += enemy2.vy : enemy.visible = false;
+		}
+
+
+
+		//console.log("level " ,gamelevelCounter);
+		//console.log("loop " ,countBackgroundLoops);
 	}//checkColisions
 
 
-	function checkBoundColision() {
-		if (!enemy.visible && !enemy2.visible) {
+	function checkCameraBounds() {
+		if (enemy.isDead && enemy2.isDead) {
 			//reposicionar o background consoante a posição do tanque
 			if (oPlayer.dir === -1) {
 				if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2) {
@@ -378,35 +422,10 @@
 			if (oPlayer.x + oPlayer.width - 10 > camera.rightInnerBoundary()) {
 				oPlayer.x = camera.rightInnerBoundary() - oPlayer.width;
 				oBackground.vx = oPlayer.vx / 3 * - 1;
-
 			}
 		}
-		else {//enemy is visible
-			oBackground.x = oBackground.x;
 
-			if (!enemy.isDead || !enemy2.isDead) {//se nao estiver morto
-				oPlayer.blockRectangle(enemy);
-				oPlayer.blockRectangle(enemy2);
-			}//bloqueia contra o inimigo
-
-
-			for (var i = 0; i < ataquesAliados.length; i++) {
-
-				if ((!ataquesAliados[i].isColliding
-					&& enemy.hitTestRectangle(ataquesAliados[i]) || (!ataquesAliados[i].isColliding
-						&& enemy2.hitTestRectangle(ataquesAliados[i])))) {
-					ataquesAliados[i].isColliding = true;
-					if (enemy.visible) {
-						enemy.morto();
-					} else {
-						enemy2.morto();
-
-					}
-				};
-
-			}
-		}
-	}//checkBoundColision
+	}//checkCameraBounds
 
 	function setAccelerationAndFriction(obj, direction) {
 		if (direction === "left") {
@@ -424,12 +443,11 @@
 		if (gameState == GameStates.RUNNING) {
 			//execute game play validations
 			gamePlay();
-
+			
 			//update das entidades
 			for (var i = 0; i < entities.length; i++) {
 				entities[i].update();
 			}
-
 			//set zombie to visible
 			if (countBackgroundLoops == previousCountBackgroundLoops) {//adiciona o inimigo
 				enemy.parar();
@@ -445,17 +463,14 @@
 				}
 				previousCountBackgroundLoops++;
 			}
-
 			checkColisions();
 			clearArrays();
-
 			// se o soldado morre para o jogo
 			if (!oPlayer.active) {
 				stopGame();
 			} else {
 				animationHandler = requestAnimationFrame(update, canvas);
 			};
-
 			render();
 		}//running game
 
@@ -470,7 +485,8 @@
 			oPlayer.flipH = -1;
 			setAccelerationAndFriction("left");
 		}
-		if (teclas[keyboard.RIGHT] && (oPlayer.x < camera.width - oPlayer.width || enemy.isDead === true)) {
+		if (teclas[keyboard.RIGHT] &&
+			(oPlayer.x < camera.width - oPlayer.width || (enemy.isDead && enemy2.isDead))) {
 			oPlayer.andar();
 			oPlayer.x += oPlayer.vx;
 			oPlayer.dir = -1;
@@ -484,21 +500,25 @@
 
 		if (oPlayer.podeAtacar) {
 			oPlayer.atacar();
-			var ataque = new Ataque(gSpriteSheets['assets//ataque.png'], oPlayer.x - 30, oPlayer.y + oPlayer.height / 3);
-			ataque.toogleState(ataque.states.Bullet);
-			ataquesAliados.push(ataque);
+			var ataque = new Ataque(gSpriteSheets['assets//ataque.png']
+				, !enemy.isDead ? enemy.x + 30 : enemy2.x + 30 //aponta para o inimigo
+				, !enemy.isDead ? enemy.y + 50 : enemy2.y + 50);
+
 			entities.push(ataque);
+
 			//status == atack
 			//criar novo ataque
-			/*
-					let aBala = new Bala(gSpriteSheets['assets//ataque.png'],
-					oPlayer.x - 30, oPlayer.y + oPlayer.height / 2.5
-					, 100,  oPlayer.dir, 
-					GameSounds.BALA);
-					aBala.toogleState(ataque.states.Bullet);
-					entities.push(aBala);
-					ataquesAliados.push(aBala);
-		*/
+			let aBala = new Bala(gSpriteSheets['assets//ataque.png'],
+				oPlayer.x - 30,
+				oPlayer.y + oPlayer.height / 2.5,
+				100,
+				oPlayer.dir,
+				null);
+
+			//	aBala.toogleState(ataque.states.Bullet);
+			entities.push(aBala);
+			ataquesAliados.push(aBala);
+
 			oPlayer.podeAtacar = false;
 			console.log("atacou");
 		}//atacar
@@ -546,6 +566,7 @@
 		oBackground.render(canvases.background.ctx);
 		barraEnergiaEnemy.render();
 		barraEnergiaHero.render();
+		gameLevel.render();
 	}//Render
 
 
