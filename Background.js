@@ -5,10 +5,10 @@ var Background = Entity.extend(function () {
 	this.states = {
 		BACKGROUND: 'background',
 		BACKGROUND_2: 'Background_2',
-                BACKGROUND_3: 'Background_3',
-                BACKGROUND_4: 'Background_4',
-                BACKGROUND_5: 'Background_5',
-                BACKGROUND_6: 'Background_6'
+		BACKGROUND_3: 'Background_3',
+		BACKGROUND_4: 'Background_4',
+		BACKGROUND_5: 'Background_5',
+		BACKGROUND_6: 'Background_6',
 	};
 
 	this.constructor = function (spriteSheet, x, y) {
@@ -37,7 +37,6 @@ var Background = Entity.extend(function () {
 	var setup = function () {
 
 		this.eStates[this.eStates.BACKGROUND] = this.spriteSheet.getStats('background');
-		//this.eStates[this.eStates.BACKGROUND_2] = this.spriteSheet.getStats('background_2');
 
 		this.frames = this.eStates[this.eStates.BACKGROUND];
 		this.width = this.frames[0].width; //atualizar a altura
@@ -45,41 +44,12 @@ var Background = Entity.extend(function () {
 
 	}.bind(this);
 
-	this.changeBackground1 = function () {
+	this.changeBackground = function (level) {
 
-		this.eStates[this.eStates.BACKGROUND_2] = this.spriteSheet.getStats('Background_2');
-		this.frames = this.eStates[this.eStates.BACKGROUND_2];
-		this.width = this.frames[0].width; //atualizar a altura
-		this.height = this.frames[0].height; // atualizar os
-	}
-        this.changeBackground2 = function () {
+		this.eStates['this.eStates.BACKGROUND_' + level] = this.spriteSheet.getStats('Background_' + level);
+		this.frames = this.eStates['this.eStates.BACKGROUND_' + level];
+	}.bind(this);
 
-		this.eStates[this.eStates.BACKGROUND_3] = this.spriteSheet.getStats('Background_3');
-		this.frames = this.eStates[this.eStates.BACKGROUND_3];
-		this.width = this.frames[0].width; //atualizar a altura
-		this.height = this.frames[0].height; // atualizar os
-	}
-        this.changeBackground3 = function () {
-
-		this.eStates[this.eStates.BACKGROUND_4] = this.spriteSheet.getStats('Background_4');
-		this.frames = this.eStates[this.eStates.BACKGROUND_4];
-		this.width = this.frames[0].width; //atualizar a altura
-		this.height = this.frames[0].height; // atualizar os
-	}
-this.changeBackground4 = function () {
-
-		this.eStates[this.eStates.BACKGROUND_5] = this.spriteSheet.getStats('Background_5');
-		this.frames = this.eStates[this.eStates.BACKGROUND_5];
-		this.width = this.frames[0].width; //atualizar a altura
-		this.height = this.frames[0].height; // atualizar os
-	}
-this.changeBackground5 = function () {
-
-		this.eStates[this.eStates.BACKGROUND_6] = this.spriteSheet.getStats('Background_6');
-		this.frames = this.eStates[this.eStates.BACKGROUND_6];
-		this.width = this.frames[0].width; //atualizar a altura
-		this.height = this.frames[0].height; // atualizar os
-	}
 	this.andar = function () {
 		this.vx = 1;
 	};

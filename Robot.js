@@ -144,6 +144,7 @@ var Robot = Entity.extend(function () {
 
 		if (this.y > this.limit && !this.goingDown) {
 			this.y += this.jumpForce;
+			toogleState(this.states.Jump);
 		//	console.log('jumping: ' + this.y);
 		} else {
 			this.goingDown = true;
@@ -151,6 +152,7 @@ var Robot = Entity.extend(function () {
 			if (this.y > this.jump_y) {
 			//	clearInterval(this.saltar);
 				this.goingDown = false;
+				toogleState(this.states.Idle);
 				this.jump=false;
 			}
 		}
@@ -158,6 +160,7 @@ var Robot = Entity.extend(function () {
 
 	this.saltar= function(){
 		this.jump=true;
+		return false;
 	} 
 	
 });

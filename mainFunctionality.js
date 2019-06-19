@@ -197,34 +197,41 @@
 	}//setUpGame
 
 	function chargeBackground() {
-		if (gamelevelCounter === 0)
-			oBackground = new Background(
-				gSpriteSheets['assets//background_2.png'], 0, 0);
-		else if (gamelevelCounter === 1) {
-			alert("passou nivel");
-			oBackground.changeBackground1();
-			countBackgroundLoops = 0;
-		}
-		else if (gamelevelCounter === 2) {
-			alert("passou nivel");
-			oBackground.changeBackground2();
-			countBackgroundLoops = 0;
-		}
-		else if (gamelevelCounter === 3) {
-			alert("passou nivel");
-			oBackground.changeBackground3();
-			countBackgroundLoops = 0;
-		}
-		else if (gamelevelCounter === 4) {
-			alert("passou nivel");
-			oBackground.changeBackground4();
-			countBackgroundLoops = 0;
-		}
+		switch (gamelevelCounter) {
+			case 0:
+				oBackground = new Background(
+					gSpriteSheets['assets//background_2.png'], 0, 0);
+				break;
+			case 1:
+				oBackground.changeBackground(2);
+				countBackgroundLoops = 0;
+				previousCountBackgroundLoops = 0;
+				break;
+			case 2:
+				oBackground.changeBackground(3);
+				countBackgroundLoops = 0;
+				previousCountBackgroundLoops = 0;
+				break;
 
-		else if (gamelevelCounter === 5) {
-			alert("passou nivel");
-			oBackground.changeBackground5();
-			countBackgroundLoops = 0;
+			case 3:
+				oBackground.changeBackground(4);
+				countBackgroundLoops = 0;
+				previousCountBackgroundLoops = 0;
+				break;
+
+			case 4:
+				oBackground.changeBackground(5);
+				countBackgroundLoops = 0;
+				previousCountBackgroundLoops = 0;
+				break;
+
+			case 5:
+				oBackground.changeBackground(6);
+				countBackgroundLoops = 0;
+				previousCountBackgroundLoops = 0;
+				break;
+
+
 		}
 
 	}
@@ -233,6 +240,11 @@
 		// criar as entidades
 		oPlayer = new Robot(gSpriteSheets['assets//robot.png'], camera.x + 100, canvas.height - 150, GameSounds.TANQUE);
 		enemy = new Zombies(gSpriteSheets['assets//female.png'], camera.width - 100, canvas.height - 150, GameSounds.TANQUE);
+		enemy2 = new Zombies(gSpriteSheets['assets//male.png'], camera.width - 100, canvas.height - 150, GameSounds.TANQUE);
+
+		enemy2.flipH = -1;//roda o inimigo
+		enemy2.bot = true;
+
 		enemy.flipH = -1;//roda o inimigo
 		enemy.bot = true;
 
@@ -242,6 +254,8 @@
 		entities.push(oBackground);
 		entities.push(oPlayer);
 		entities.push(enemy);
+		entities.push(enemy2);
+
 	}//setUpSprites
 
 
@@ -322,13 +336,13 @@
 	// função que verifica as colisões
 	function checkColisions() {
 		//validação para incrementar niveis
-		if (countBackgroundLoops == 2) {
+		if (countBackgroundLoops == 5) {
 			gamelevelCounter++;
 			//voltar a carregar o jogo
 			chargeBackground();
 		}
 
-		if (!enemy.visible) {
+		if (!enemy.visible && !enemy2.visible) {
 			//reposicionar o background consoante a posição do tanque
 			if (oPlayer.dir === -1) {
 				if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2) {
@@ -351,18 +365,24 @@
 		else {//enemy is visible
 			oBackground.x = oBackground.x;
 
-			if (!enemy.isDead) {//se nao estiver morto
+			if (!enemy.isDead || !enemy2.isDead) {//se nao estiver morto
 				oPlayer.blockRectangle(enemy);
+				oPlayer.blockRectangle(enemy2);
 			}//bloqueia contra o inimigo
 
 
 			for (var i = 0; i < ataquesAliados.length; i++) {
 
-				if (!ataquesAliados[i].isColliding
-					&& enemy.hitTestRectangle(ataquesAliados[i])) {
+				if ((!ataquesAliados[i].isColliding
+					&& enemy.hitTestRectangle(ataquesAliados[i]) || (!ataquesAliados[i].isColliding
+						&& enemy2.hitTestRectangle(ataquesAliados[i])))) {
 					ataquesAliados[i].isColliding = true;
+					if (enemy.visible) {
+						enemy.morto();
+					} else {
+						enemy2.morto();
 
-					enemy.morto();
+					}
 				};
 
 			}
@@ -394,8 +414,14 @@
 			//set zombie to visible
 			if (countBackgroundLoops == previousCountBackgroundLoops) {//adiciona o inimigo
 				enemy.parar();
-				enemy.visible = true;
-				enemy.isDead = false;
+				enemy2.parar();
+				if (countBackgroundLoops % 2 === 0) {
+					enemy2.visible = true;
+					enemy2.isDead = false;
+				} else {
+					enemy.visible = true;
+					enemy.isDead = false;
+				}
 				previousCountBackgroundLoops++;
 			}
 
