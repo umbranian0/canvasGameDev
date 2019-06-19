@@ -1,8 +1,7 @@
-var Ataque = Entity.extend(function () {
+var Fogo = Entity.extend(function () {
 		this.currState = undefined; // estado atual;
 		this.states = {
-			Muzzle: 'Muzzle',
-			Bullet: 'Bullet'
+			ATIVO: 'ATIVO'
 		};
 		this.currentFrame = 0;
 
@@ -11,7 +10,7 @@ var Ataque = Entity.extend(function () {
 			this.x = x;
 			this.y = y;
 			this.spriteSheet = spriteSheet;
-			this.currState = this.states.Muzzle;
+			this.currState = this.states.ATIVO;
 			this.currentFrame = 0;
 			setup();
 		};
@@ -19,8 +18,8 @@ var Ataque = Entity.extend(function () {
 		this.update = function () {
 			if (!this.active) return;
 
-			// passar ï¿½ proxima frame e voltar a zero se chegar ao fim do array; Mï¿½todo mais eficiente pois utiliza sï¿½ operaï¿½ï¿½es
-			// aritmï¿½ticas e nï¿½o recorre a condiï¿½ï¿½es
+			// passar à proxima frame e voltar a zero se chegar ao fim do array; Método mais eficiente pois utiliza só operações
+			// aritméticas e não recorre a condições
 			this.currentFrame = (++this.currentFrame) % this.frames.length;
 
 			this.width = this.frames[this.currentFrame].width; //atualizar a largura
@@ -31,23 +30,12 @@ var Ataque = Entity.extend(function () {
 
 		};
 
-		this.toogleState = function (theState) {
-			if (this.Muzzle) return;
-			if (this.currState != theState) {
-				this.currState = theState;
-				this.frames = this.eStates[theState];
-				this.currentFrame = 0;
-			}
-		}.bind(this);
-
 		this.getSprite = function () {
 			return this.frames[this.currentFrame];
 		};
 
 		var setup = function () {
-			this.eStates.Muzzle = this.spriteSheet.getStats('Muzzle');
-			this.eStates.Bullet = this.spriteSheet.getStats('Bullet');
-			
+			this.eStates.ATIVO = this.spriteSheet.getStats('FOGO');
 			this.frames = this.eStates[this.currState];
 			this.width = this.frames[0].width; //atualizar a altura
 			this.height = this.frames[0].height; // atualizar os
