@@ -1,6 +1,6 @@
 var Zombies = Entity.extend(function () {
 	this.currState = undefined; // estado atual;
-
+	var fdr = 0;
 	var podeAtacar = false;
 
 	this.states = {
@@ -44,7 +44,8 @@ var Zombies = Entity.extend(function () {
 	};
 
 	this.update = function () {
-
+		if (fdr++ % 5 !== 0) return;//mete em slow motion
+		fdr = 1;
 		if (this.currState == this.states.Dead && this.currentFrame == this.frames.length - 1)
 			return;
 
