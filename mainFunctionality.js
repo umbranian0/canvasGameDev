@@ -282,8 +282,8 @@
 		canvases.entities.canvas.height = oBackground.height;
 		canvases.components.canvas.width = window.innerWidth;
 		canvases.components.canvas.height = oBackground.height;
-		oBackground.x = 0;
-		//	oBackground.x = Math.floor(oBackground.width * (-2 / 3));
+		//oBackground.x = 0;
+		oBackground.x = Math.floor(oBackground.width * (-2 / 3));
 		//dar load da camera e do Game world de forma a fazer o mapa dinamico
 		// 1 -  criar o gameWorld
 		gameWorld = new GameWorld(0, 0, canvas.width, canvas.height);
@@ -355,21 +355,38 @@
 			chargeBackground();
 		}
 
-		checkCameraBounds();//collisao da camera
+		if (!enemy.visible && !enemy2.visible) {//no enemyy on game
 
-		//colisao com inimigos
-		if (!enemy.isDead || !enemy2.isDead) {//se nao estiver morto
-			oPlayer.blockRectangle(enemy);
-			oPlayer.blockRectangle(enemy2);
-		}//bloqueia contra o inimigo
-		for (var i = 0; i < ataquesAliados.length; i++) {
+			checkCameraBounds();//collisao da camera
 
-			if ((!ataquesAliados[i].isColliding && enemy.hitTestRectangle(ataquesAliados[i])
-				|| (!ataquesAliados[i].isColliding && enemy2.hitTestRectangle(ataquesAliados[i]))
-				)) {
+		} else {//enemy is visible
+			barraEnergiaEnemy.render();
 
-				ataquesAliados[i].isColliding = true;
-/*
+			oBackground.x = oBackground.x;
+
+			if (!enemy.isDead || !enemy2.isDead) {//se nao estiver morto
+				oPlayer.blockRectangle(enemy);
+				oPlayer.blockRectangle(enemy2);
+			}//bloqueia contra o inimigo
+
+
+			for (var i = 0; i < ataquesAliados.length; i++) {
+
+				if ((!ataquesAliados[i].isColliding && enemy.hitTestRectangle(ataquesAliados[i])
+					|| (!ataquesAliados[i].isColliding && enemy2.hitTestRectangle(ataquesAliados[i])))) {
+					ataquesAliados[i].isColliding = true;
+					if (!enemy.isDead) {//inimigo vivo
+						enemy.isColliding = true;
+						enemy.energia == 0 ? enemy.morto(canvas) : null;
+						ataquesAliados[i].Muzzle();
+					} else if (!enemy2.isDead) {//inimigo 2
+						enemy2.isColliding = true;
+						enemy2.energia == 0 ? enemy2.morto(canvas) : null;
+						ataquesAliados[i].Muzzle();
+					}
+				} else {
+					ataquesAliados[i].isColliding = false;
+				}
 
 				if (ataquesAliados[i].right() < 0 || //remove balas que saiem para fora
 					ataquesAliados[i].left() > canvas.width ||
@@ -377,53 +394,51 @@
 					ataquesAliados[i].top() > canvas.height) {
 					ataquesAliados[i].active = false;
 				}
-				
-				
-				*/
-				if (!enemy.isDead) {//nao esta bem penso eu...
-					enemy.morto();
-				} else {
-					enemy2.morto();//este enemy vai logo para baixo como se estivesse morto....
+				//tira vida aos enemys
+				if ((enemy.hitTestRectangle(ataquesAliados[i]) && !enemy.isDead)
+					|| (enemy.hitTestRectangle(ataquesAliados[i]) && !enemy.killed)) {
+					!enemy.isDead ? enemy.energia -= ataquesAliados[i].damageLevel : enemy2.energia -= ataquesAliados[i].damageLevel;
+					barraEnergiaEnemy.update(!enemy.isDead ? enemy.energia : enemy2.energia);
+					
 				}
-			};
-		}
+			}
 
+		}
 		///todo!!!! nao esta bom....
 
 		//retirar inimigo quando sair do background
-		if ((enemy.visible && enemy.isDead)//caso algum inimigo esteja visivel
-			|| (enemy2.visible && enemy.isDead)) {
+/*
+		if (enemy.visible && enemy.isDead)
 			enemy.y <= canvas.height + enemy.height ? enemy.y += enemy.vy : enemy.visible = false;
+		if (enemy2.visible && enemy.isDead)
 			enemy2.y <= canvas.height + enemy.height ? enemy2.y += enemy2.vy : enemy.visible = false;
-		}
+*/
 
-
-
-		//console.log("level " ,gamelevelCounter);
-		//console.log("loop " ,countBackgroundLoops);
 	}//checkColisions
 
 
 	function checkCameraBounds() {
-		if (enemy.isDead && enemy2.isDead) {
-			//reposicionar o background consoante a posição do tanque
-			if (oPlayer.dir === -1) {
-				if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2) {
-					oBackground.x = 0;
-					countBackgroundLoops++;
-				}//direita
-			} else if (oPlayer.dir === 1) {
-				if (oBackground.x >= 0) {
-					oBackground.x = (Math.floor(oBackground.width / 3)) * - 2;
-				}//esquera
-			}
-			// 3 - animar o background se o tanque atingir os limites interiores da c�mara
-			//     a uma velocidade de 1/3 da velocidade do tanque	
-			if (oPlayer.x + oPlayer.width - 10 > camera.rightInnerBoundary()) {
-				oPlayer.x = camera.rightInnerBoundary() - oPlayer.width;
-				oBackground.vx = oPlayer.vx / 3 * - 1;
-			}
+
+		//reposicionar o background consoante a posição do tanque
+		if (oPlayer.dir === -1) {
+			if (oBackground.x <= (Math.floor(oBackground.width / 3)) * - 2) {
+				countBackgroundLoops++;
+				oBackground.x = 0;
+			}//direita
+		} else if (oPlayer.dir === 1) {
+			if (oBackground.x >= 0) {
+				oBackground.x = (Math.floor(oBackground.width / 3)) * - 2;
+			}//esquera
 		}
+
+		// 3 - animar o background se o tanque atingir os limites interiores da c�mara
+		//     a uma velocidade de 1/3 da velocidade do tanque	
+		if (oPlayer.x + oPlayer.width - 10 > camera.rightInnerBoundary()) {
+			oPlayer.x = camera.rightInnerBoundary() - oPlayer.width;
+			oBackground.vx = oPlayer.vx / 3 * - 1;
+
+		}
+
 
 	}//checkCameraBounds
 
@@ -443,7 +458,7 @@
 		if (gameState == GameStates.RUNNING) {
 			//execute game play validations
 			gamePlay();
-			
+
 			//update das entidades
 			for (var i = 0; i < entities.length; i++) {
 				entities[i].update();
@@ -452,14 +467,20 @@
 			if (countBackgroundLoops == previousCountBackgroundLoops) {//adiciona o inimigo
 				enemy.parar();
 				enemy2.parar();
-				if (countBackgroundLoops !== 0) {
+				if (countBackgroundLoops != 0) {
 					if (countBackgroundLoops % 2 === 0) {
 						enemy2.visible = true;
 						enemy2.isDead = false;
+						enemy2.energia = 100;
+					barraEnergiaEnemy.update(enemy2.energia);
 					} else {
 						enemy.visible = true;
 						enemy.isDead = false;
+						enemy.energia = 100;
+						barraEnergiaEnemy.update(enemy.energia);
 					}
+					console.log("loop", countBackgroundLoops);
+					console.log("level", countBackgroundLoops);
 				}
 				previousCountBackgroundLoops++;
 			}
@@ -486,7 +507,7 @@
 			setAccelerationAndFriction("left");
 		}
 		if (teclas[keyboard.RIGHT] &&
-			(oPlayer.x < camera.width - oPlayer.width || (enemy.isDead && enemy2.isDead))) {
+			(oPlayer.x < camera.width - oPlayer.width || (enemy.isDead === true && enemy2.isDead === true))) {
 			oPlayer.andar();
 			oPlayer.x += oPlayer.vx;
 			oPlayer.dir = -1;
@@ -499,28 +520,7 @@
 			oPlayer.y = oPlayer.bottom() + oPlayer.vy > canvas.height ? canvas.height - oPlayer.height : oPlayer.y + oPlayer.vy;
 
 		if (oPlayer.podeAtacar) {
-			oPlayer.atacar();
-			var ataque = new Ataque(gSpriteSheets['assets//ataque.png']
-				, !enemy.isDead ? enemy.x + 30 : enemy2.x + 30 //aponta para o inimigo
-				, !enemy.isDead ? enemy.y + 50 : enemy2.y + 50);
-
-			entities.push(ataque);
-
-			//status == atack
-			//criar novo ataque
-			let aBala = new Bala(gSpriteSheets['assets//ataque.png'],
-				oPlayer.x - 30,
-				oPlayer.y + oPlayer.height / 2.5,
-				100,
-				oPlayer.dir,
-				null);
-
-			//	aBala.toogleState(ataque.states.Bullet);
-			entities.push(aBala);
-			ataquesAliados.push(aBala);
-
-			oPlayer.podeAtacar = false;
-			console.log("atacou");
+			ataqueDoJogador();
 		}//atacar
 
 		//console.log(oPlayer.isOnGround);
@@ -529,8 +529,45 @@
 			oPlayer.saltar();
 		}//salta
 
+		//ataque automatico do zombie
+		if (!enemy.isDead || !enemy2.isDead) {
+			enemy.disparar(function () {
+				//status == atack
+				//criar novo ataque
+				let aBala = new Bala(gSpriteSheets['assets//ataque.png'],
+					enemy.x - 30,
+					enemy.y + enemy.height / 2.5,
+					10,//bullet demage
+					enemy.dir,
+					null);
+				entities.push(aBala);
+				ataquesInimigos.push(aBala);
+			});
+		}
 	}//gamePlay
 
+	function ataqueDoJogador() {
+		oPlayer.atacar();
+		var ataque = new Ataque(gSpriteSheets['assets//ataque.png']
+			, !enemy.isDead ? enemy.x + 30 : enemy2.x + 30 //aponta para o inimigo
+			, !enemy.isDead ? enemy.y + 50 : enemy2.y + 50);
+
+		entities.push(ataque);
+
+		//status == atack
+		//criar novo ataque
+		let aBala = new Bala(gSpriteSheets['assets//ataque.png'],
+			oPlayer.x - 30,
+			oPlayer.y + oPlayer.height / 2.5,
+			10,//bullet demage
+			oPlayer.dir,
+			null);
+		entities.push(aBala);
+		ataquesAliados.push(aBala);
+
+		oPlayer.podeAtacar = false;
+		console.log("atacou");
+	}//ataque do jogador
 
 	// Limpeza das entidades desativadas
 	function clearArrays() {
@@ -564,7 +601,7 @@
 		//	camera.drawFrame(canvases.entities.ctx, true);
 		//renderiza a camera dinamica
 		oBackground.render(canvases.background.ctx);
-		barraEnergiaEnemy.render();
+	//	barraEnergiaEnemy.render();
 		barraEnergiaHero.render();
 		gameLevel.render();
 	}//Render

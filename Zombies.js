@@ -31,6 +31,7 @@ var Zombies = Entity.extend(function () {
 		this.limit = 100;
 		this.goingDown = false;
 		//activity variables
+		this.energia = 100;
 		this.isDead = true;
 		this.visible = false;
 		//bot variable 
@@ -38,7 +39,7 @@ var Zombies = Entity.extend(function () {
 		//Platform game properties   
 		this.isOnGround = undefined;
 		this.jumpForce = -10;
-	
+
 		setup();
 	};
 
@@ -57,11 +58,21 @@ var Zombies = Entity.extend(function () {
 			this.parar();
 		}
 		//condição para saltar
-		if(this.jump) animarSalto();
+		if (this.jump) animarSalto();
 
-		if(this.bot)
-		andarAutomatico;
-
+		// andamento automatico
+		if (this.currState === this.states.Walk) {
+			this.vx = 1;
+			this.x -= this.vx;
+		}
+		// s� pode disparar depois de terminar a anima��o de disparo anterior
+		if (this.currState === this.states.Attack && this.currentFrame == this.frames.length - 1) {
+			if (callback !== undefined) callback();
+			this.andar(); // depois de disparar continua a andar;
+			podeAtacar = true;
+		}
+		if (this.visible && this.isDead)
+			this.y <= this.height ? this.y += this.vy : this.visible = false;
 	};
 
 	var setup = function () {
@@ -78,21 +89,17 @@ var Zombies = Entity.extend(function () {
 
 	}.bind(this);
 
-	this.andarAutomatico = function (){
-		// andamento automatico
-		if (this.currState === this.states.Walk) {
-			this.vx = 2;
-			//if(this.x )
-			this.x -= this.vx;
-		}
-
-		// se terminou a anima��o de morrer desativa-se para ser removido da memoria
-		if (this.currState == this.states.Dead && this.currentFrame == this.frames.length - 1) {
-			this.active = false;
-		}
-		if (this.energia <= 0)
-			this.atingido();
-	}
+	this.disparar = function (criarBala) {
+		if (!podeAtacar)	return;
+		toogleState(this.states.Attack);
+		podeAtacar = false;
+		var shot = Math.random() * 50;
+		if (shot > 15)
+			this.sounds.TIRO.play(false, 0.08);
+		else
+			this.sounds.TIRO2.play(false, 0.08);
+		callback = criarBala;
+	};
 
 	this.atacar = function () {
 		toogleState(this.states.Attack);
@@ -101,7 +108,7 @@ var Zombies = Entity.extend(function () {
 	this.andar = function () {
 
 		toogleState(this.states.Walk);
-	
+
 	};
 
 	this.parar = function () {
@@ -111,8 +118,7 @@ var Zombies = Entity.extend(function () {
 
 	this.morto = function () {
 		toogleState(this.states.Dead);
-		this.isDead = true;	
-		//setTimeout(function(){this.visible = false}, 1500);
+		this.isDead = true;
 	};
 
 	var toogleState = function (theState) {
@@ -123,29 +129,29 @@ var Zombies = Entity.extend(function () {
 			this.currentFrame = 0;
 		}
 	}.bind(this);
-	
-	
-	
+
+
+
 	//nao funciona...
 	var animarSalto = function () {
-	//	console.log("salta");
+		//	console.log("salta");
 
 		if (this.y > this.limit && !this.goingDown) {
 			this.y += this.jumpForce;
-		//	console.log('jumping: ' + this.y);
+			//	console.log('jumping: ' + this.y);
 		} else {
 			this.goingDown = true;
 			this.y -= this.jumpForce;
 			if (this.y > this.jump_y) {
-			//	clearInterval(this.saltar);
+				//	clearInterval(this.saltar);
 				this.goingDown = false;
-				this.jump=false;
+				this.jump = false;
 			}
 		}
 	}.bind(this);
 
-	this.saltar= function(){
-		this.jump=true;
-	} 
-	
+	this.saltar = function () {
+		this.jump = true;
+	}
+
 });

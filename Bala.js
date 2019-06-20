@@ -63,7 +63,7 @@ var Bala = Entity.extend(function () {
 		this.vx = 0;
 		this.vy = 0;
 		this.exploding = true;
-		this.sounds.NOALVO.play(false, 1);
+	//	this.sounds.NOALVO.play(false, 1);
 	};
 
 	var toogleState = function (theState) {
