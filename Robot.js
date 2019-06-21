@@ -94,24 +94,9 @@ var Robot = Entity.extend(function () {
 		this.width = this.frames[0].width; //atualizar a altura
 		this.height = this.frames[0].height; // atualizar os
 		// atualizar o array de frames atual
-
+		this.vx = 13;
 	}.bind(this);
 
-	this.andarAutomatico = function () {
-		// andamento automatico
-		if (this.currState === this.states.Run) {
-			this.vx = 2;
-			//if(this.x )
-			this.x -= this.vx;
-		}
-
-		// se terminou a anima��o de morrer desativa-se para ser removido da memoria
-		if (this.currState == this.states.Dead && this.currentFrame == this.frames.length - 1) {
-			this.active = false;
-		}
-		if (this.energia <= 0)
-			this.atingido();
-	}
 
 	this.atacar = function () {
 		toogleState(this.states.Shoot);

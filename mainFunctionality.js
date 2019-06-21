@@ -32,14 +32,16 @@
 	var teclas = new Array(255);
 	//variaveis para os objetos do jogo
 	var oPlayer = undefined;
-	var enemy;
-	var enemyArray = [];
+	var enemyFemale;
+	var boss;
+
+	var enemyFemaleArray = [];
 	//arrays para testes de colisão
 	var ataquesAliados = [];
 	var ataquesInimigos = [];
 
 	//degbug
-	var debugMode = false;
+	var debugMode = true;
 	var andou = false;
 
 	//componenetes do jogo
@@ -104,25 +106,34 @@
 
 	}//load
 
-	//TODO
+
 	function loadSounds() {
+
+		gSoundManager.loadAsync("sounds/tiroSoldado.mp3", function (so) {
+			GameSounds.SOLDADO.TIRO = so;
+			loaded("sounds/tiroSoldado.mp3")
+		});
+		assets.push(GameSounds.SOLDADO.TIRO);
+
+		gSoundManager.loadAsync("sounds/introDoom.mp3", function (so) {
+			GameSounds.AMBIENTE.INTRO = so;
+			loaded("sounds/introDoom.mp3")
+		});
+		assets.push(GameSounds.AMBIENTE.INTRO);
+
+		gSoundManager.loadAsync("sounds/final.mp3", function (so) {
+			GameSounds.AMBIENTE.FINAL = so;
+			loaded("sounds/final.mp3")
+		});
+		assets.push(GameSounds.AMBIENTE.FINAL);
 
 	}//loadSounds
 
 	function loadSpriteSheet() {
-		//TODO
+
 		let spBackground = new SpriteSheet();
 		spBackground.load("assets//background_2.png", "assets//background_2.json", loaded);
 		assets.push(spBackground);
-
-		/*
-		let spBackground2 = new SpriteSheet();
-		spBackground.load("assets//background_2.png", "assets//background_2.json", loaded);
-		assets.push(spBackground2);
-*/
-		let spTanque = new SpriteSheet();
-		spTanque.load("assets//tank.png", "assets//tank.json", loaded);
-		assets.push(spTanque);
 
 		let spriteMale = new SpriteSheet();
 		spriteMale.load("assets//male.png", "assets//male.json", loaded);
@@ -139,6 +150,10 @@
 		let spriteAtaque = new SpriteSheet();
 		spriteAtaque.load("assets//ataque.png", "assets//ataque.json", loaded);
 		assets.push(spriteAtaque);
+
+		let spriteNinja = new SpriteSheet();
+		spriteNinja.load("assets//ninja.png", "assets//ninja.json", loaded);
+		assets.push(spriteNinja);
 	}//loadSpriteSheet
 
 	//load assets
@@ -150,18 +165,16 @@
 
 			assets.splice(0); // apagar o array auxiliar usado para o load
 
-			console.log(assets);
 			// Se já conseguimos chegar aqui, os assets estão carregados! Podemos começar a criar 
 			// e configurar os elementos do jogo
 			assetsLoadInfo.innerHTML = "Game Loaded! Press any key when are ready...";
 
-			console.log(gamelevelCounter);
 
 			gameState = GameStates.LOADED;
 			window.addEventListener("keypress", setupGame, false); // espera por uma tecla pressionada para começar
 		}
 		//iniciar musica
-		//GameSounds.AMBIENTE.INTRO.play(true, 1);
+		GameSounds.AMBIENTE.INTRO.play(true, 1);
 
 	}//loaded
 
@@ -199,7 +212,7 @@
 		barraEnergiaHero = new EnergyBar(5, 5, 120, 12, canvases.components.ctx, 'Hero\'s Life Level ', "black", "black", "red");
 
 		barraEnergiaEnemy = new EnergyBar(canvas.width - 135, 5, 120, 12, canvases.components.ctx, 'Enemy\'s Life Level', "black", "black", "blue");
-		gameLevel = new GameTimer((canvas.width >> 1) - 25, 5, 50, 50, canvases.components.ctx, '', "red", "black", "white", gamelevelCounter);
+		gameLevel = new GameLevelCounter((canvas.width >> 1) - 25, 5, 50, 50, canvases.components.ctx, '', "red", "black", "white", gamelevelCounter);
 
 	}//*set up components
 
@@ -251,29 +264,23 @@
 	function setUpSprites() {
 		// criar as entidades
 		oPlayer = new Robot(gSpriteSheets['assets//robot.png'], camera.x + 100, canvas.height - 150, GameSounds.TANQUE);
-		enemy = new Zombies(gSpriteSheets['assets//female.png'], camera.width - 100, canvas.height - 150, GameSounds.TANQUE);
-		enemy2 = new Zombies(gSpriteSheets['assets//male.png'], camera.width - 100, canvas.height - 150, GameSounds.TANQUE);
-
-		enemy2.flipH = -1;//roda o inimigo
-		enemy.flipH = -1;//roda o inimigo
+		enemyFemale = new Zombies(gSpriteSheets['assets//female.png'], camera.width - 100, canvas.height - 150, GameSounds.TANQUE);
+		enemyMale = new Zombies(gSpriteSheets['assets//male.png'], camera.width - 100, canvas.height - 150, GameSounds.TANQUE);
+		boss = new Ninja(gSpriteSheets['assets//ninja.png'], camera.width - 200, canvas.height - 250, GameSounds.TANQUE);
 
 		//player vars
 		oPlayer.visible = true;
 		//armazenar entidades
 		entities.push(oBackground);
 		entities.push(oPlayer);
-		entities.push(enemy);
-		entities.push(enemy2);
+		entities.push(enemyFemale);
+		entities.push(enemyMale);
+		entities.push(boss);
 
 	}//setUpSprites
 
 
 	function setUpGameCamera() {
-		// aplicar efeitos gráficos ao canvas
-		//oBackground.render(canvases.background.ctx); //o background é estático, desenha-se aqui apenas uma ve
-		//canvases.background.canvas.colorize("#555566");// modo noturno :)
-		//canvases.background.canvas.colorize("#00ff00"); // modo infra-vermelhos
-		//canvases.background.canvas.grayScale();//preto e branco :)
 
 		// ajustar os canvas ao tamanho da janela
 		canvases.background.canvas.width = window.innerWidth;
@@ -282,8 +289,8 @@
 		canvases.entities.canvas.height = oBackground.height;
 		canvases.components.canvas.width = window.innerWidth;
 		canvases.components.canvas.height = oBackground.height;
-		//oBackground.x = 0;
-		oBackground.x = Math.floor(oBackground.width * (-2 / 3));
+		oBackground.x = -150;
+		
 		//dar load da camera e do Game world de forma a fazer o mapa dinamico
 		// 1 -  criar o gameWorld
 		gameWorld = new GameWorld(0, 0, canvas.width, canvas.height);
@@ -292,17 +299,16 @@
 		camera = new Camera(0, gameWorld.height * 0.5,
 			gameWorld.width, gameWorld.height * 0.5);
 
-		//camera.center(gameWorld);
+	
 	}//setUpGameCamera
 
 	//função que para o jogo. É chamada pelo timer, quando a contagem chega a zero
 	function stopGame() {
 		cancelAnimationFrame(animationHandler);
 		gameState = GameStates.STOPED;
-		//gameLevel.stop();
+		
 		gSoundManager.stopAll(); //p�ram-se todos os  sons
-		//GameSounds.AMBIENTE.FINAL.play(true, 0.2);
-
+		GameSounds.AMBIENTE.FINAL.play(true, 0.25);
 		canvases.background.canvas.colorize("#614719");
 		canvases.entities.canvas.colorize("#614719");
 		canvases.components.canvas.grayScale();
@@ -325,13 +331,8 @@
 		teclas[codTecla] = false;
 
 		switch (codTecla) {
-			case keyboard.KPAD_PLUS:
-				oPlayer.vx = oPlayer.vy += 3;
-				break;
-			case keyboard.KPAD_MINUS:
-				oPlayer.vx = oPlayer.vy -= 3;
-				break;
 			case keyboard.LSHIFT, keyboard.RSHIFT:
+
 				oPlayer.podeAtacar = true;
 				break;
 		}
@@ -347,7 +348,7 @@
 	function checkColisions() {
 
 		//validação para incrementar niveis
-		if (countBackgroundLoops == 2) {
+		if (countBackgroundLoops == 10) {
 			gamelevelCounter++;
 
 			gameLevel.switchLevel(gamelevelCounter);
@@ -355,33 +356,65 @@
 			chargeBackground();
 		}
 
-		if (!enemy.visible && !enemy2.visible) {//no enemyy on game
+		if (!enemyFemale.visible && !enemyMale.visible && !boss.visible) {//no enemyFemaley on game
 
 			checkCameraBounds();//collisao da camera
 
-		} else {//enemy is visible
+		} else {//enemyFemale is visible
 			barraEnergiaEnemy.render();
 
 			oBackground.x = oBackground.x;
 
-			if (!enemy.isDead || !enemy2.isDead) {//se nao estiver morto
-				oPlayer.blockRectangle(enemy);
-				oPlayer.blockRectangle(enemy2);
+			if (!enemyFemale.isDead || !enemyMale.isDead || !boss.isDead) {//se nao estiver morto
+				oPlayer.blockRectangle(enemyFemale);
+				oPlayer.blockRectangle(enemyMale);
+				oPlayer.blockRectangle(boss);
+
 			}//bloqueia contra o inimigo
 
+			else if (!enemyFemale.estaAAtacar() || !enemyMale.estaAAtacar() || !boss.estaAAtacar()) {//permite os bots atacarem
+				if (!enemyFemale.isDead)
+					enemyFemale.andar();
+				if (!enemyMale.isDead)
+					enemyMale.andar();
+				if (!boss.isDead)
+					boss.andar();
+			}
 
+			//colisao entre balas inimigas e player
+			/*		for (var i = 0; i < ataquesInimigos.length; i++) {
+						if (oPlayer.hitTestRectangle(ataquesInimigos[i] && !oPlayer.isColliding && !ataquesInimigos[i].isColliding)) {
+							oPlayer.isColliding = true;
+							ataquesInimigos[i].isColliding = true;
+		
+						} else {
+							ataquesInimigos[i].isColliding = false;
+						}
+		
+						if (oPlayer.hitTestRectangle(ataquesInimigos[i]) && !oPlayer.isDead) {
+							oPlayer.energia -= ataquesInimigos[i].damageLevel;
+							barraEnergiaHero.update(oPlayer.energia);
+		
+						}
+		
+					}*/
 			for (var i = 0; i < ataquesAliados.length; i++) {
 
-				if ((!ataquesAliados[i].isColliding && enemy.hitTestRectangle(ataquesAliados[i])
-					|| (!ataquesAliados[i].isColliding && enemy2.hitTestRectangle(ataquesAliados[i])))) {
-					ataquesAliados[i].isColliding = true;
-					if (!enemy.isDead) {//inimigo vivo
-						enemy.isColliding = true;
-						enemy.energia == 0 ? enemy.morto(canvas) : null;
+				if ((!ataquesAliados[i].isColliding && enemyFemale.hitTestRectangle(ataquesAliados[i]) && enemyFemale.visible)
+					|| (!ataquesAliados[i].isColliding && enemyMale.hitTestRectangle(ataquesAliados[i]) && enemyMale.visible)
+					|| (!ataquesAliados[i].isColliding && boss.hitTestRectangle(ataquesAliados[i]) && boss.visible)) {
+					
+					if (!enemyFemale.isDead) {//inimigo vivo
+						enemyFemale.isColliding = true;
+						enemyFemale.energia == 0 ? enemyFemale.morto(canvas) : null;
 						ataquesAliados[i].Muzzle();
-					} else if (!enemy2.isDead) {//inimigo 2
-						enemy2.isColliding = true;
-						enemy2.energia == 0 ? enemy2.morto(canvas) : null;
+					} else if (!enemyMale.isDead) {//inimigo 2
+						enemyMale.isColliding = true;
+						enemyMale.energia == 0 ? enemyMale.morto(canvas) : null;
+						ataquesAliados[i].Muzzle();
+					} else if (!boss.isDead) {//BOSS	
+						boss.isColliding = true;
+						boss.energia == 0 ? boss.morto(canvas) : null;
 						ataquesAliados[i].Muzzle();
 					}
 				} else {
@@ -394,26 +427,25 @@
 					ataquesAliados[i].top() > canvas.height) {
 					ataquesAliados[i].active = false;
 				}
-				//tira vida aos enemys
-				if ((enemy.hitTestRectangle(ataquesAliados[i]) && !enemy.isDead)
-					|| (enemy.hitTestRectangle(ataquesAliados[i]) && !enemy.killed)) {
-					!enemy.isDead ? enemy.energia -= ataquesAliados[i].damageLevel : enemy2.energia -= ataquesAliados[i].damageLevel;
-					barraEnergiaEnemy.update(!enemy.isDead ? enemy.energia : enemy2.energia);
-					
+				//tira vida aos enemyFemales
+				if ((enemyFemale.hitTestRectangle(ataquesAliados[i]) && !enemyFemale.isDead)
+					|| (enemyMale.hitTestRectangle(ataquesAliados[i]) && !enemyMale.isDead)) {
+
+					(!enemyFemale.isDead ? enemyFemale.energia -= ataquesAliados[i].damageLevel : enemyMale.energia -= ataquesAliados[i].damageLevel);
+					barraEnergiaEnemy.update(!enemyFemale.isDead ? enemyFemale.energia : enemyMale.energia);
+
 				}
+
+				if (boss.hitTestRectangle(ataquesAliados[i]) && !boss.isDead) {
+					boss.energia -= ataquesAliados[i].damageLevel;
+					barraEnergiaEnemy.update(boss.energia);
+
+				}
+
+
 			}
 
 		}
-		///todo!!!! nao esta bom....
-
-		//retirar inimigo quando sair do background
-/*
-		if (enemy.visible && enemy.isDead)
-			enemy.y <= canvas.height + enemy.height ? enemy.y += enemy.vy : enemy.visible = false;
-		if (enemy2.visible && enemy.isDead)
-			enemy2.y <= canvas.height + enemy.height ? enemy2.y += enemy2.vy : enemy.visible = false;
-*/
-
 	}//checkColisions
 
 
@@ -465,25 +497,34 @@
 			}
 			//set zombie to visible
 			if (countBackgroundLoops == previousCountBackgroundLoops) {//adiciona o inimigo
-				enemy.parar();
-				enemy2.parar();
-				if (countBackgroundLoops != 0) {
+
+				if (countBackgroundLoops !== 0 && countBackgroundLoops < 10) {
 					if (countBackgroundLoops % 2 === 0) {
-						enemy2.visible = true;
-						enemy2.isDead = false;
-						enemy2.energia = 100;
-					barraEnergiaEnemy.update(enemy2.energia);
-					} else {
-						enemy.visible = true;
-						enemy.isDead = false;
-						enemy.energia = 100;
-						barraEnergiaEnemy.update(enemy.energia);
+						enemyMale.x = canvas.width;
+						enemyMale.andar();
+						enemyMale.visible = true;
+						enemyMale.isDead = false;
+						enemyMale.energia = 50;
+						barraEnergiaEnemy.update(enemyMale.energia);
+					} else if (countBackgroundLoops % 2 !== 0 && countBackgroundLoops !== 9) {
+						enemyFemale.x = canvas.width;
+						enemyFemale.andar();
+						enemyFemale.visible = true;
+						enemyFemale.isDead = false;
+						enemyFemale.energia = 50;
+						barraEnergiaEnemy.update(enemyFemale.energia);
+					} else if (countBackgroundLoops === 9) {
+						boss.x = canvas.width;
+						boss.andar();
+						boss.visible = true;
+						boss.isDead = false;
+						enemyMale.energia = 100;
+						barraEnergiaEnemy.update(boss.energia);
 					}
-					console.log("loop", countBackgroundLoops);
-					console.log("level", countBackgroundLoops);
 				}
 				previousCountBackgroundLoops++;
 			}
+
 			checkColisions();
 			clearArrays();
 			// se o soldado morre para o jogo
@@ -507,7 +548,7 @@
 			setAccelerationAndFriction("left");
 		}
 		if (teclas[keyboard.RIGHT] &&
-			(oPlayer.x < camera.width - oPlayer.width || (enemy.isDead === true && enemy2.isDead === true))) {
+			(oPlayer.x < camera.width - oPlayer.width || (enemyFemale.isDead === true && enemyMale.isDead === true))) {
 			oPlayer.andar();
 			oPlayer.x += oPlayer.vx;
 			oPlayer.dir = -1;
@@ -523,34 +564,51 @@
 			ataqueDoJogador();
 		}//atacar
 
-		//console.log(oPlayer.isOnGround);
 		//Space
 		if (oPlayer.jump) {
 			oPlayer.saltar();
 		}//salta
 
 		//ataque automatico do zombie
-		if (!enemy.isDead || !enemy2.isDead) {
-			enemy.disparar(function () {
-				//status == atack
-				//criar novo ataque
-				let aBala = new Bala(gSpriteSheets['assets//ataque.png'],
-					enemy.x - 30,
-					enemy.y + enemy.height / 2.5,
-					10,//bullet demage
-					enemy.dir,
-					null);
-				entities.push(aBala);
-				ataquesInimigos.push(aBala);
-			});
+		if (!enemyFemale.isDead || !enemyMale.isDead || !boss.isDead) {
+			boss.isDead ?
+				!enemyMale.isDead ? enemyMale.andar() : enemyFemale.andar() //boss morto enemys vivos
+				:
+				boss.andar();
+
+			if (ataquesInimigos.length <= 1)
+
+				boss.isDead ?
+					!enemyMale.isDead ? criarBala(enemyMale) : criarBala(enemyFemale) //boss morto enemys vivos
+					:
+					criarBala(boss);
 		}
+
+
 	}//gamePlay
+
+	function criarBala(enemy) {
+		enemy.atacar();
+
+		let aBala = new Bala(gSpriteSheets['assets//ataque.png'],
+			enemy.x - 30,
+			enemy.y + enemy.height / 2.5,
+			10,//bullet demage
+			1,
+			null);
+		aBala.flipH = -1;
+		entities.push(aBala);
+		ataquesInimigos.push(aBala);
+		enemy.andar();
+
+	}
 
 	function ataqueDoJogador() {
 		oPlayer.atacar();
+		GameSounds.SOLDADO.TIRO.play(false, 1);
 		var ataque = new Ataque(gSpriteSheets['assets//ataque.png']
-			, !enemy.isDead ? enemy.x + 30 : enemy2.x + 30 //aponta para o inimigo
-			, !enemy.isDead ? enemy.y + 50 : enemy2.y + 50);
+			, !enemyFemale.isDead ? enemyFemale.x + 30 : enemyMale.x + 30 //aponta para o inimigo
+			, !enemyFemale.isDead ? enemyFemale.y + 50 : enemyMale.y + 50);
 
 		entities.push(ataque);
 
@@ -564,14 +622,15 @@
 			null);
 		entities.push(aBala);
 		ataquesAliados.push(aBala);
-
 		oPlayer.podeAtacar = false;
-		console.log("atacou");
 	}//ataque do jogador
 
 	// Limpeza das entidades desativadas
+
 	function clearArrays() {
 		entities = entities.filter(filterByActive);
+		ataquesAliados = ataquesAliados.filter(filterByActive);
+		ataquesInimigos = ataquesInimigos.filter(filterByActive);
 	}//clearArrays
 
 	function filterByActive(obj) {
@@ -597,11 +656,10 @@
 			}
 		}
 		//desenha o frame da camera 
-		//debug
-		//	camera.drawFrame(canvases.entities.ctx, true);
+
 		//renderiza a camera dinamica
+
 		oBackground.render(canvases.background.ctx);
-	//	barraEnergiaEnemy.render();
 		barraEnergiaHero.render();
 		gameLevel.render();
 	}//Render

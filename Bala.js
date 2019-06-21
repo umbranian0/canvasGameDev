@@ -2,13 +2,13 @@ var Bala = Entity.extend(function () {
 
 	this.exploding = false;
 	this.damageLevel = 0;
-	this.dir=1;
+	this.dir = 1;
 
 	this.states = {
 		Bullet: 'Bullet',
 		Muzzle: 'Muzzle'
 	};
-	
+
 	this.sounds = {};
 
 	this.constructor = function (spriteSheet, x, y, damageLevel, dir, sons) {
@@ -23,33 +23,33 @@ var Bala = Entity.extend(function () {
 		this.vy = 0;
 		this.damageLevel = damageLevel;
 		this.sounds = sons;
-		this.dir=dir;
+		this.dir = dir;
 		setup();
 	};
 
 	this.update = function () {
 		if (!this.active) return;
 
-		this.x -= this.vx*this.dir;
+		this.x -= this.vx * this.dir;
 		this.vx -= this.vx > 0 ? 0.005 : 0;
 
 		this.y -= this.vy;
 
-		this.width = this.frames[this.currentFrame].width *0.5;
-		this.height = this.frames[this.currentFrame].height *0.5;
+		this.width = this.frames[this.currentFrame].width * 0.5;
+		this.height = this.frames[this.currentFrame].height * 0.5;
 		this.updateSize();
 
 		if (this.currState == this.states.Muzzle && this.currentFrame == this.frames.length - 1)
 			this.active = false;
 
-		this.currentFrame =  (++this.currentFrame)%this.frames.length;
-		 
+		this.currentFrame = (++this.currentFrame) % this.frames.length;
+
 	};
 
 	var setup = function () {
 
-		this.eStates.Muzzle	=	this.spriteSheet.getStats('Muzzle');
-		this.eStates.Bullet 		=	this.spriteSheet.getStats('Bullet');
+		this.eStates.Muzzle = this.spriteSheet.getStats('Muzzle');
+		this.eStates.Bullet = this.spriteSheet.getStats('Bullet');
 
 		this.frames = this.eStates[this.currentState];
 		this.width = this.frames[0].width;
@@ -63,7 +63,7 @@ var Bala = Entity.extend(function () {
 		this.vx = 0;
 		this.vy = 0;
 		this.exploding = true;
-	//	this.sounds.NOALVO.play(false, 1);
+		//	this.sounds.NOALVO.play(false, 1);
 	};
 
 	var toogleState = function (theState) {
