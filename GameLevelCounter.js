@@ -1,4 +1,4 @@
-var GameTimer = Component.extend(function () {
+var GameLevelCounter = Component.extend(function () {
 		var fillWith = 100;
 		this.text = "";
 		var borderColor = "white";

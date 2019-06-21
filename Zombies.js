@@ -65,6 +65,7 @@ var Zombies = Entity.extend(function () {
 		if (this.currState === this.states.Walk) {
 			this.vx = 1;
 			this.x -= this.vx;
+			setInterval(this.disparar , 5000);
 		}
 		// s� pode disparar depois de terminar a anima��o de disparo anterior
 		if (this.currState === this.states.Attack && this.currentFrame == this.frames.length - 1) {
@@ -86,9 +87,15 @@ var Zombies = Entity.extend(function () {
 		this.frames = this.eStates[this.currState];
 		this.width = this.frames[0].width; //atualizar a altura
 		this.height = this.frames[0].height; // atualizar os
+		this.flipH = -1;
+
 		// atualizar o array de frames atual
 
 	}.bind(this);
+
+	this.estaAAtacar = function(){
+		return (!podeAtacar);
+	}
 
 	this.disparar = function (criarBala) {
 		if (!podeAtacar)	return;
