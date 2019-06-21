@@ -212,8 +212,8 @@
 		barraEnergiaHero = new EnergyBar(5, 5, 120, 12, canvases.components.ctx, 'Hero\'s Life Level ', "black", "black", "red");
 
 		barraEnergiaEnemy = new EnergyBar(canvas.width - 135, 5, 120, 12, canvases.components.ctx, 'Enemy\'s Life Level', "black", "black", "blue");
-		gameLevel = new GameLevelCounter((canvas.width >> 1) - 25, 5, 50, 50, canvases.components.ctx, '', "red", "black", "white", gamelevelCounter);
 
+	
 	}//*set up components
 
 	function chargeBackground() {
@@ -241,6 +241,8 @@
 				levelPauseAndResumeByLevel(6);
 				break;
 		}
+		1
+		gameLevel = new GameLevelCounter((canvas.width >> 1) + 400  , 10, 30, 50, canvases.components.ctx, '', "red", "black", "white", (gamelevelCounter + 1) );
 
 	}//chargeBackground
 

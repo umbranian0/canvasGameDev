@@ -21,8 +21,7 @@ var GameLevelCounter = Component.extend(function () {
 			borderColor = _borderColor !== undefined ? _borderColor : "white";
 			fillColor = _fillColor !== undefined ? _fillColor : "red";
 			textColor = _textColor !== undefined ? _textColor : "black";
-		//	started = sCallback;
-		//	ended = eCallback;
+
 			this.time = time;
 			this.text = time.toString();
 		};
@@ -81,7 +80,6 @@ var GameLevelCounter = Component.extend(function () {
 			//desenho do preenchimento
 			this.ctx.beginPath();
 			this.ctx.rect(this.x, this.y, this.fillWith, this.height);
-			console.log(this.textColor);
 			this.ctx.fillStyle = textColor;
 			this.ctx.font = "35px Arial black";
 			this.ctx.fillText(this.text, this.left() + 2, this.height - (this.height / 6));
