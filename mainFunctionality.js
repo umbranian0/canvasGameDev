@@ -41,10 +41,6 @@
 
 	//degbug
 	var debugMode = true;
-<<<<<<< HEAD
-=======
-	var andou = false;
->>>>>>> f4a85da7bbe0107ba07dfeb229e86dd9ec94c1e6
 
 	//componenetes do jogo
 	var barraEnergiaEnemy = undefined;
